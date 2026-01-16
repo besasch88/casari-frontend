@@ -1,6 +1,6 @@
 import { Table } from '@entities/table';
 import { Button } from '@mantine/core';
-import { IconCoins, IconCreditCard } from '@tabler/icons-react';
+import { IconCircleCheck, IconProgress } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 export interface TableItemComponentProps {
@@ -13,10 +13,6 @@ export default function TableItemComponent({ table, onClick }: TableItemComponen
   const { t } = useTranslation();
 
   if (table.close) {
-    let icon = <IconCoins color="green" size={28} />;
-    if (table.paymentMethod == 'card') {
-      icon = <IconCreditCard color="orange" size={28} />;
-    }
     return (
       <Button
         onClick={() => onClick(table.id)}
@@ -24,7 +20,7 @@ export default function TableItemComponent({ table, onClick }: TableItemComponen
         size="lg"
         variant="filled"
         color="var(--aimm-bg-paper)"
-        rightSection={icon}
+        leftSection={<IconCircleCheck size={22} color="green" />}
         bd={'1px solid var(--mantine-color-dark-1)'}
         c="var(--mantine-color-text)"
       >
@@ -33,7 +29,13 @@ export default function TableItemComponent({ table, onClick }: TableItemComponen
     );
   } else {
     return (
-      <Button fullWidth size="lg" variant="default" onClick={() => onClick(table.id)}>
+      <Button
+        fullWidth
+        size="lg"
+        leftSection={<IconProgress size={22} color="orange" />}
+        variant="default"
+        onClick={() => onClick(table.id)}
+      >
         {t('tableTable')} {table.name}
       </Button>
     );

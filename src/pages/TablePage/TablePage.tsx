@@ -6,6 +6,7 @@ import {
   defaultListTableApiResponse,
 } from '@dtos/defaultTableDto';
 import { ListTableInputDto, ListTableOutputDto } from '@dtos/tableDto';
+import { Table } from '@entities/table';
 import { AuthGuard } from '@guards/AuthGuard';
 import {
   Affix,
@@ -70,6 +71,9 @@ export default function TablePage() {
       navigate(data.item.id);
     } catch (err: unknown) {
       switch (getErrorMessage(err)) {
+        case 'table-same-name-already-exists':
+          form.setFieldError('name', t('tableNameAlreadyInUse'));
+          break;
         case 'refresh-token-failed':
           navigate('/logout', { replace: true });
           break;
@@ -104,6 +108,16 @@ export default function TablePage() {
       }
     })();
   }, [navigate, listTableApiRequest]);
+
+  const getMyTables = (items: Table[]): Table[] => {
+    const userId = auth.getUserId();
+    return items.filter((table) => userId === table.userId);
+  };
+
+  const getOtherTables = (items: Table[]): Table[] => {
+    const userId = auth.getUserId();
+    return items.filter((table) => userId !== table.userId);
+  };
 
   // Content
   return (
@@ -145,13 +159,19 @@ export default function TablePage() {
                   gap="xs"
                   pb={70}
                 >
-                  {listTableApiResponse.items.map((table) => {
-                    if (auth.getUserId() === table.userId) {
-                      return (
-                        <TableItemComponent table={table} onClick={onTableItemClick} />
-                      );
-                    }
+                  {getMyTables(listTableApiResponse.items).map((table) => {
+                    return (
+                      <TableItemComponent table={table} onClick={onTableItemClick} />
+                    );
                   })}
+                  {getMyTables(listTableApiResponse.items).length == 0 && (
+                    <EmptyState
+                      title={t('tableEmptyList')}
+                      text={t('tableEmptyListDescription')}
+                      suggestion={t('tableEmptyListInstruction')}
+                      imageName="rs-warmup"
+                    ></EmptyState>
+                  )}
                 </Stack>
               </Grid.Col>
             )}
@@ -165,13 +185,18 @@ export default function TablePage() {
                     gap="xs"
                     pb={70}
                   >
-                    {listTableApiResponse.items.map((table) => {
-                      if (auth.getUserId() !== table.userId) {
-                        return (
-                          <TableItemComponent table={table} onClick={onTableItemClick} />
-                        );
-                      }
+                    {getOtherTables(listTableApiResponse.items).map((table) => {
+                      return (
+                        <TableItemComponent table={table} onClick={onTableItemClick} />
+                      );
                     })}
+                    {getOtherTables(listTableApiResponse.items).length == 0 && (
+                      <EmptyState
+                        title={t('tableOtherEmptyList')}
+                        text={t('tableOtherEmptyListDescription')}
+                        imageName="no-results"
+                      ></EmptyState>
+                    )}
                   </Stack>
                 )}
                 {!auth.hasPermissionTo('read-other-tables') && (
@@ -184,11 +209,11 @@ export default function TablePage() {
               </Grid.Col>
             )}
             <Affix
-              p={10}
+              p={'md'}
               w={'100%'}
               flex={'width'}
               position={{ bottom: 0 }}
-              hidden={createModalIsOpen}
+              hidden={createModalIsOpen || selectedSection != 'my-tables'}
             >
               <Button
                 size="lg"
@@ -203,16 +228,24 @@ export default function TablePage() {
         )}
       </Layout>
 
-      <Modal opened={createModalIsOpen} onClose={createModalClose} centered>
+      <Modal
+        opened={createModalIsOpen}
+        onClose={() => {
+          form.reset();
+          createModalClose();
+        }}
+        centered
+      >
         <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Title order={2} ta={'center'}>
-            {t('tableNew')}
+          <Title order={3} ta={'center'}>
+            {t('tableAddNew')}
           </Title>
           <TextInput
             size="lg"
             autoFocus
             leftSection={<IconLayout2 size={22} />}
             withAsterisk
+            disabled={apiLoading}
             placeholder={t('tableInsertTypeName')}
             key={form.key('name')}
             {...form.getInputProps('name')}
@@ -222,6 +255,8 @@ export default function TablePage() {
             type="submit"
             size="lg"
             fullWidth
+            loading={apiLoading}
+            loaderProps={{ type: 'dots' }}
             onClick={createModalOpen}
             leftSection={<IconCirclePlus size={28} />}
           >

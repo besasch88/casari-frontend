@@ -24,9 +24,7 @@ export function Menu() {
     const items = [];
     if (
       auth.getPermissions().includes('read-my-tables') ||
-      auth.getPermissions().includes('write-my-tables') ||
-      auth.getPermissions().includes('read-other-tables') ||
-      auth.getPermissions().includes('write-other-tables')
+      auth.getPermissions().includes('read-other-tables')
     ) {
       items.push({
         label: t('menuTables'),
@@ -34,20 +32,14 @@ export function Menu() {
         link: '/tables',
       });
     }
-    if (
-      auth.getPermissions().includes('read-menu') ||
-      auth.getPermissions().includes('write-menu')
-    ) {
+    if (auth.getPermissions().includes('read-menu')) {
       items.push({
         label: t('menuMenu'),
         icon: IconColumns,
         link: '/menu',
       });
     }
-    if (
-      auth.getPermissions().includes('read-printer') ||
-      auth.getPermissions().includes('write-priter')
-    ) {
+    if (auth.getPermissions().includes('read-printer')) {
       items.push({
         label: t('menuPrinter'),
         icon: IconPrinter,

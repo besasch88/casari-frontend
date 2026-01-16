@@ -24,7 +24,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <AppShellHeader bd={0} mx={'md'}>
         <Header onMenuToggle={setOpen} />
       </AppShellHeader>
-      <AppShellNavbar p="md" pt={0} bd={0}>
+      <AppShellNavbar zIndex={300} p="md" pt={0} bd={0}>
         <Menu />
       </AppShellNavbar>
       <AppShellMain>

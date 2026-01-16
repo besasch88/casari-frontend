@@ -22,19 +22,19 @@ export function EmptyState({
 
   return (
     <Stack align="center" gap="xs">
-      <Box w={200} maw={200}>
-        <Box mt={30} component={Image} />
+      <Box w={170} maw={170}>
+        <Box mt={20} component={Image} />
       </Box>
-      <Title order={3} mt={30} mb={10} maw={550}>
+      <Title order={3} mt={20} mb={0} maw={400}>
         {title}
       </Title>
       {text && (
-        <Text ta={'center'} maw={450} size="md">
+        <Text ta={'center'} maw={400} size="md">
           {text}
         </Text>
       )}
       {suggestion && (
-        <Text maw={400} fs={'italic'} size="sm" ta={'center'} mt={20}>
+        <Text maw={350} fs={'italic'} size="sm" ta={'center'} mt={20}>
           {suggestion}
         </Text>
       )}

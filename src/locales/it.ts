@@ -23,9 +23,17 @@ export const itTranslations = {
   tableForbidden: 'Area Riservata',
   tableForbiddenDescription:
     'Ops! Sembra che tu non abbia l’autorizzazione per accedere a questa sezione.',
+  tableEmptyList: 'Nessun tavolo presente',
+  tableEmptyListDescription:
+    'In questa area appariranno solo i tavoli da te creati durante il servizio.',
+  tableEmptyListInstruction:
+    'Per iniziare premi sul pulsante sottostante per aggiungere il tuo primo tavolo.',
+  tableOtherEmptyList: 'Nessun tavolo presente',
+  tableOtherEmptyListDescription:
+    'In questa area appariranno i tavoli creati dai tuoi colleghi durante il servizio.',
   tableTable: 'Tavolo',
-  tableAddNew: 'Aggiungi Tavolo',
-  tableNew: 'Nuovo Tavolo',
+  tableAddNew: 'Aggiungi un Tavolo',
   tableAdd: 'Aggiungi',
-  tableInsertTypeName: 'Inserisci nome',
+  tableInsertTypeName: 'Inserisci nome del Tavolo',
+  tableNameAlreadyInUse: 'Nome del tavolo già in uso',
 };
