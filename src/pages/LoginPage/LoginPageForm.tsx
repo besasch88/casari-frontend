@@ -24,8 +24,10 @@ export function LoginPageForm() {
       password: '',
     },
     validate: {
-      username: (value: string) => (value.trim().length != 0 ? null : t('fieldRequired')),
-      password: (value: string) => (value.trim().length != 0 ? null : t('fieldRequired')),
+      username: (value: string) =>
+        value.trim().length != 0 ? null : t('fieldIsRequired'),
+      password: (value: string) =>
+        value.trim().length != 0 ? null : t('fieldIsRequired'),
     },
   });
 
@@ -37,7 +39,7 @@ export function LoginPageForm() {
         username: values.username,
         password: values.password,
       });
-      auth.login(values.username, data.accessToken, data.refreshToken);
+      auth.login(data.userId, values.username, data.accessToken, data.refreshToken);
       navigate('/');
     } catch (err: unknown) {
       switch (getErrorMessage(err)) {
@@ -61,15 +63,17 @@ export function LoginPageForm() {
     <Box>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <TextInput
+          size="lg"
           leftSection={<IconUser size={22} />}
           withAsterisk
           label="Username"
           placeholder={t('loginTypeUsername')}
           key={form.key('username')}
           {...form.getInputProps('username')}
-          mb="sm"
+          mb="lg"
         />
         <PasswordInput
+          size="lg"
           leftSection={<IconKey size={22} />}
           withAsterisk
           label={'Password'}
@@ -78,6 +82,7 @@ export function LoginPageForm() {
           {...form.getInputProps('password')}
         />
         <Button
+          size="lg"
           type="submit"
           mt={'xl'}
           loading={apiLoading}

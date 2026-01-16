@@ -1,22 +1,19 @@
 .menuBox {
-  border: 1px solid;
-  border-color: var(--aimm-bg-paper);
-  padding: var(--mantine-spacing-xs);
+  background-color: var(--aimm-bg-paper);
   height: 100%;
 }
 
 .navbar {
-  padding: 0px;
-  padding-top: 10px;
+  padding-top: 15px;
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
 .footer {
-  border-top: 1px solid var(--mantine-color-brand-4);
-  padding-top: 10px;
-  margin-top: 10px;
+  border-top: 1px solid var(--mantine-color-blue-4);
+  padding-top: 15px;
+  margin-top: 15px;
 }
 
 .links {

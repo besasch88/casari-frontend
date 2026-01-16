@@ -5,29 +5,24 @@ import {
   AppShellHeader,
   AppShellMain,
   AppShellNavbar,
-  Burger,
   Container,
   Grid,
-  Group,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useState } from 'react';
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const [opened, { toggle }] = useDisclosure();
+  const [isOpen, setOpen] = useState(false);
   return (
     <AppShell
-      header={{ height: 50 }}
+      header={{ height: 70 }}
       navbar={{
-        width: { sm: 220 },
+        width: { sm: 300 },
         breakpoint: 'xs',
-        collapsed: { mobile: !opened, desktop: false },
+        collapsed: { mobile: !isOpen, desktop: false },
       }}
     >
-      <AppShellHeader bd={0}>
-        <Group ml={'md'}>
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Header />
-        </Group>
+      <AppShellHeader bd={0} mx={'md'}>
+        <Header onMenuToggle={setOpen} />
       </AppShellHeader>
       <AppShellNavbar p="md" pt={0} bd={0}>
         <Menu />

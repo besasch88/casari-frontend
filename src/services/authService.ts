@@ -24,6 +24,7 @@ export const authService = {
     }
     const data = await response.json();
     return {
+      userId: data.item.userId,
       accessToken: data.item.accessToken,
       refreshToken: data.item.refreshToken,
     };
@@ -38,6 +39,7 @@ export const authService = {
     }
     const data = await response.json();
     return {
+      userId: data.item.userId,
       accessToken: data.item.accessToken,
       refreshToken: data.item.refreshToken,
     };

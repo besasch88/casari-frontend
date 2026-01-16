@@ -3,6 +3,7 @@ export type RefreshInputDto = {
 };
 
 export type RefreshOutputDto = {
+  userId: string;
   accessToken: string;
   refreshToken: string;
 };
@@ -21,6 +22,7 @@ export type LoginInputDto = {
 };
 
 export type LoginOutputDto = {
+  userId: string;
   accessToken: string;
   refreshToken: string;
 };

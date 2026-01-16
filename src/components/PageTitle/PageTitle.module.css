@@ -1,0 +1,9 @@
+.root {
+    height: 60px;
+    text-align: center;
+    font-size: var(--mantine-font-size-md);
+    font-weight: 600;
+    color:var(--mantine-color-white);
+    border-radius: var(--mantine-radius-default);
+    background-color: var(--mantine-color-blue-9);
+}

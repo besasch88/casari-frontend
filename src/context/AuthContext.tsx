@@ -1,7 +1,16 @@
 import { jwtDecode } from 'jwt-decode';
 import { createContext, useContext } from 'react';
 
-export type Permission = 'read' | 'write';
+export type Permission =
+  | 'read-printer'
+  | 'write-printer'
+  | 'read-menu'
+  | 'write-menu'
+  | 'read-my-tables'
+  | 'write-my-tables'
+  | 'read-other-tables'
+  | 'write-other-tables'
+  | 'read-statistics';
 
 export interface JwtClaims {
   iss: string; // issuer
@@ -13,14 +22,20 @@ export interface JwtClaims {
 }
 
 type AuthContextType = {
+  getUserId: () => string | null;
   getUsername: () => string | null;
   getAccessToken: () => string | null;
   getRefreshToken: () => string | null;
   getPermissions: () => string[];
-  login: (username: string, accessToken: string, refreshToken: string) => void;
+  login: (
+    userId: string,
+    username: string,
+    accessToken: string,
+    refreshToken: string
+  ) => void;
   refresh: (accessToken: string, refreshToken: string) => void;
-  canWrite: () => boolean;
   logout: () => void;
+  hasPermissionTo: (permission: Permission) => boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +44,10 @@ export interface AuthProviderProps {
   children: React.ReactNode;
 }
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const getUserId = () => {
+    return localStorage.getItem('userId');
+  };
+
   const getUsername = () => {
     return localStorage.getItem('username');
   };
@@ -48,7 +67,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return decoded.permissions;
   };
 
-  const login = (username: string, accessToken: string, refreshToken: string) => {
+  const login = (
+    userId: string,
+    username: string,
+    accessToken: string,
+    refreshToken: string
+  ) => {
+    localStorage.setItem('userId', userId);
     localStorage.setItem('username', username);
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
@@ -60,19 +85,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = () => {
+    localStorage.removeItem('userId');
     localStorage.removeItem('username');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
   };
 
-  const canWrite = () => {
-    const permissions = getPermissions();
-    return permissions.includes('write');
+  const hasPermissionTo = (permission: Permission): boolean => {
+    return getPermissions().includes(permission);
   };
 
   return (
     <AuthContext.Provider
       value={{
+        getUserId,
         getUsername,
         getAccessToken,
         getRefreshToken,
@@ -80,7 +106,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         login,
         refresh,
         logout,
-        canWrite,
+        hasPermissionTo,
       }}
     >
       {children}

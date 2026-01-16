@@ -10,15 +10,15 @@ import '@mantine/notifications/styles.css';
 
 import { DirectionProvider, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
+import MenuPage from '@pages/MenuPage/MenuPage';
 import { cssVariablesResolver, mantineTheme } from '@styles/theme';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import DashboardPage from './pages/DashboardPage/DashboardPage';
 import InternalServerErrorPage from './pages/InternalServerErrorPage/InternalServerErrorPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import LogoutPage from './pages/LogoutPage/LogoutPage';
 import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
-import UseCasePage from './pages/UseCasePage/UseCasePage';
+import TablePage from './pages/TablePage/TablePage';
 
 export function App() {
   return (
@@ -33,9 +33,9 @@ export function App() {
           <BrowserRouter>
             <Routes>
               {/* Protected main page */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/use-cases" element={<UseCasePage />} />
+              <Route path="/" element={<Navigate to="/tables" replace />} />
+              <Route path="/tables" element={<TablePage />} />
+              <Route path="/menu" element={<MenuPage />} />
               <Route path="/logout" element={<LogoutPage />} />
 
               {/* Public login page */}
