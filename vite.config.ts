@@ -1,0 +1,20 @@
+import svgr from '@svgr/rollup';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import eslint from 'vite-plugin-eslint';
+import tsconfigPaths from 'vite-tsconfig-paths';
+
+export default defineConfig({
+  plugins: [
+    svgr(),
+    react(),
+    tsconfigPaths(),
+    eslint({
+      cache: false,
+    }),
+  ],
+  server: {
+    host: true,
+    port: 5173,
+  },
+});
