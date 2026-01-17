@@ -18,7 +18,12 @@ export default function NotFoundPage() {
           {t('notFoundDescription')}
         </Text>
         <Group justify="center">
-          <Button variant="white" size="md" color="indigo" onClick={() => navigate('/')}>
+          <Button
+            variant="white"
+            size="md"
+            color="indigo"
+            onClick={() => navigate('/', { replace: true })}
+          >
             {t('notFoundButton')}
           </Button>
         </Group>

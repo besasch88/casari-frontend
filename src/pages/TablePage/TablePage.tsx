@@ -49,7 +49,7 @@ export default function TablePage() {
     useDisclosure(false);
 
   const onTableItemClick = (id: string) => {
-    navigate(`${id}`);
+    navigate(`${id}`, { replace: true });
   };
 
   // Form
@@ -68,7 +68,7 @@ export default function TablePage() {
       const data = await tableService.createTable({
         name: values.name,
       });
-      navigate(data.item.id);
+      navigate(data.item.id, { replace: true });
     } catch (err: unknown) {
       switch (getErrorMessage(err)) {
         case 'table-same-name-already-exists':
@@ -159,9 +159,13 @@ export default function TablePage() {
                   gap="xs"
                   pb={70}
                 >
-                  {getMyTables(listTableApiResponse.items).map((table) => {
+                  {getMyTables(listTableApiResponse.items).map((table, index) => {
                     return (
-                      <TableItemComponent table={table} onClick={onTableItemClick} />
+                      <TableItemComponent
+                        key={`my_${index}`}
+                        table={table}
+                        onClick={onTableItemClick}
+                      />
                     );
                   })}
                   {getMyTables(listTableApiResponse.items).length == 0 && (
@@ -185,9 +189,13 @@ export default function TablePage() {
                     gap="xs"
                     pb={70}
                   >
-                    {getOtherTables(listTableApiResponse.items).map((table) => {
+                    {getOtherTables(listTableApiResponse.items).map((table, index) => {
                       return (
-                        <TableItemComponent table={table} onClick={onTableItemClick} />
+                        <TableItemComponent
+                          key={`other_${index}`}
+                          table={table}
+                          onClick={onTableItemClick}
+                        />
                       );
                     })}
                     {getOtherTables(listTableApiResponse.items).length == 0 && (

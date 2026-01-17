@@ -40,7 +40,7 @@ export function LoginPageForm() {
         password: values.password,
       });
       auth.login(data.userId, values.username, data.accessToken, data.refreshToken);
-      navigate('/');
+      navigate('/', { replace: true });
     } catch (err: unknown) {
       switch (getErrorMessage(err)) {
         case 'invalid-username-or-password': {
@@ -66,7 +66,7 @@ export function LoginPageForm() {
           size="lg"
           leftSection={<IconUser size={22} />}
           withAsterisk
-          label="Username"
+          label={t('loginUsername')}
           placeholder={t('loginTypeUsername')}
           key={form.key('username')}
           {...form.getInputProps('username')}
@@ -76,7 +76,7 @@ export function LoginPageForm() {
           size="lg"
           leftSection={<IconKey size={22} />}
           withAsterisk
-          label={'Password'}
+          label={t('loginPassword')}
           placeholder={t('loginTypePassword')}
           key={form.key('password')}
           {...form.getInputProps('password')}

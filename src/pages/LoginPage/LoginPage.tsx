@@ -35,7 +35,7 @@ export default function LoginPage() {
           refreshToken,
         });
         auth.refresh(data.accessToken, data.refreshToken);
-        navigate('/');
+        navigate('/', { replace: true });
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {
           case 'refresh-token-failed': {

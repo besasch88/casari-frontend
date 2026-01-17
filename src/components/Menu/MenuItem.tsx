@@ -51,7 +51,7 @@ export function MenuItem({ icon: Icon, label, link, subItems }: MenuItemProps) {
       className={`${classes.link} ${location.pathname.startsWith(item.link) ? classes.activeLink : ''}`}
       href={item.link}
       key={item.label}
-      onClick={() => navigate(item.link)}
+      onClick={() => navigate(item.link, { replace: true })}
     >
       {item.label}
     </Text>
@@ -61,7 +61,7 @@ export function MenuItem({ icon: Icon, label, link, subItems }: MenuItemProps) {
   // If the item has a link, navigate to it
   // Otherwise use it for opening the menu in case it has
   const onClickHandler = () => {
-    if (link !== undefined) return navigate(link);
+    if (link !== undefined) return navigate(link, { replace: true });
     if (subItems !== undefined) return setOpened((status) => !status);
   };
 

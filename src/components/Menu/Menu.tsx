@@ -36,7 +36,7 @@ export function Menu() {
       items.push({
         label: t('menuMenu'),
         icon: IconColumns,
-        link: '/menu',
+        link: '/menu/categories',
       });
     }
     if (auth.getPermissions().includes('read-printer')) {

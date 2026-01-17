@@ -10,7 +10,9 @@ import '@mantine/notifications/styles.css';
 
 import { DirectionProvider, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
-import MenuPage from '@pages/MenuPage/MenuPage';
+import MenuCategoryPage from '@pages/MenuCategoryPage/MenuCategoryPage';
+import MenuItemOptionPage from '@pages/MenuItemOptionPage/MenuItemOptionPage';
+import MenuItemPage from '@pages/MenuItemPage/MenuItemPage';
 import { cssVariablesResolver, mantineTheme } from '@styles/theme';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -35,7 +37,9 @@ export function App() {
               {/* Protected main page */}
               <Route path="/" element={<Navigate to="/tables" replace />} />
               <Route path="/tables" element={<TablePage />} />
-              <Route path="/menu" element={<MenuPage />} />
+              <Route path="/menu/categories" element={<MenuCategoryPage />} />
+              <Route path="/menu/categories/:menuCategoryId" element={<MenuItemPage />} />
+              <Route path="/menu/items/:menuItemId" element={<MenuItemOptionPage />} />
               <Route path="/logout" element={<LogoutPage />} />
 
               {/* Public login page */}
