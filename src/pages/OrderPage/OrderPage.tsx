@@ -1,5 +1,6 @@
 import { Layout } from '@components/Layout/Layout';
 import { PageTitle } from '@components/PageTitle/PageTitle';
+import { StackList } from '@components/StackList/StackList';
 import { useAuth } from '@context/AuthContext';
 import { defaultGetMenuApiResponse } from '@dtos/defaultMenuDto';
 import { defaultGetTableApiResponse } from '@dtos/defaultTableDto';
@@ -8,10 +9,9 @@ import { GetTableOutputDto } from '@dtos/tableDto';
 import { Menu } from '@entities/menu';
 import { MenuCategory } from '@entities/menuCategory';
 import { MenuItem } from '@entities/menuItem';
-import { MenuItemOption } from '@entities/menuItemOption';
+import { MenuOption } from '@entities/menuOption';
 import { AuthGuard } from '@guards/AuthGuard';
 import {
-  ActionIcon,
   Affix,
   Button,
   Flex,
@@ -19,11 +19,10 @@ import {
   Group,
   Loader,
   SegmentedControl,
-  Stack,
 } from '@mantine/core';
 import { menuService } from '@services/menuService';
 import { tableService } from '@services/tableService';
-import { IconCircleArrowLeft, IconCirclePlus } from '@tabler/icons-react';
+import { IconCirclePlus, IconClock } from '@tabler/icons-react';
 import { getErrorMessage } from '@utils/errUtils';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -85,8 +84,43 @@ export default function OrderPage() {
     return category.items;
   };
 
-  const getItemOptions = (item: MenuItem): MenuItemOption[] => {
+  const getItemOptions = (item: MenuItem): MenuOption[] => {
     return item.options;
+  };
+
+  const getActions = () => {
+    if (getTableApiResponse.item.close) {
+      return [
+        {
+          icon: IconClock,
+          text: 'RIAPRI',
+          onClick: () => alert('riapri'),
+        },
+      ];
+    } else {
+      return [
+        {
+          icon: IconClock,
+          text: 'STAMPA PORTATA',
+          onClick: () => alert('portata'),
+        },
+        {
+          icon: IconClock,
+          text: 'STAMPA ORDRINE',
+          onClick: () => alert('ordine'),
+        },
+        {
+          icon: IconClock,
+          text: 'STAMPA PRE-CONTO',
+          onClick: () => alert('pre-conto'),
+        },
+        {
+          icon: IconClock,
+          text: 'CHIUDI TAVOLO',
+          onClick: () => alert('chiudi'),
+        },
+      ];
+    }
   };
 
   const onSelectedCategory = (categoryIndex: string) => {
@@ -99,16 +133,7 @@ export default function OrderPage() {
         {!pageLoaded && (
           <Grid.Col span={12}>
             <Flex wrap="nowrap" w={'100%'} gap={10}>
-              <ActionIcon
-                variant="outline"
-                aria-label="Back"
-                size={50}
-                onClick={() => navigate('/tables', { replace: true })}
-                color="var(--mantine-color-blue-3)"
-              >
-                <IconCircleArrowLeft stroke={1.5} />
-              </ActionIcon>
-              <PageTitle title="..." />
+              <PageTitle title="..." backLink="/tables" />
             </Flex>
             <Group mt={75} justify="center" align="center">
               <Loader type="dots" />
@@ -119,16 +144,11 @@ export default function OrderPage() {
           <>
             <Grid.Col span={12}>
               <Flex wrap="nowrap" w={'100%'} gap={10}>
-                <ActionIcon
-                  variant="outline"
-                  aria-label="Back"
-                  size={50}
-                  onClick={() => navigate('/tables', { replace: true })}
-                  color="var(--mantine-color-blue-3)"
-                >
-                  <IconCircleArrowLeft stroke={1.5} />
-                </ActionIcon>
-                <PageTitle title={getTableApiResponse.item.name} />
+                <PageTitle
+                  title={getTableApiResponse.item.name}
+                  backLink="/tables"
+                  actions={getActions()}
+                />
               </Flex>
             </Grid.Col>
             <Grid.Col span={12}>
@@ -146,13 +166,7 @@ export default function OrderPage() {
               />
             </Grid.Col>
             <Grid.Col span={12}>
-              <Stack
-                bg="var(--mantine-color-body)"
-                align="stretch"
-                justify="center"
-                gap="xs"
-                pb={70}
-              >
+              <StackList>
                 {selectedCategory &&
                   getItems(selectedCategory!).map((menuItem, index) => {
                     return (
@@ -163,7 +177,7 @@ export default function OrderPage() {
                       />
                     );
                   })}
-              </Stack>
+              </StackList>
             </Grid.Col>
             <Affix p={'md'} w={'100%'} flex={'width'} position={{ bottom: 0 }}>
               <Button size="lg" fullWidth leftSection={<IconCirclePlus size={28} />}>

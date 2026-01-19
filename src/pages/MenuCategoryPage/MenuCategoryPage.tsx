@@ -1,9 +1,10 @@
 import { Layout } from '@components/Layout/Layout';
 import { PageTitle } from '@components/PageTitle/PageTitle';
+import { StackList } from '@components/StackList/StackList';
 import { defaultListMenuCategoryApiResponse } from '@dtos/defaultMenuCategoryDto';
 import { ListMenuCategoryOutputDto } from '@dtos/menuCategoryDto';
 import { AuthGuard } from '@guards/AuthGuard';
-import { Grid, Group, Loader, Stack } from '@mantine/core';
+import { Grid, Group, Loader } from '@mantine/core';
 import { menuCategoryService } from '@services/menuCategoryService';
 import { getErrorMessage } from '@utils/errUtils';
 import { useEffect, useState } from 'react';
@@ -82,13 +83,7 @@ export default function MenuCategoryPage() {
               <PageTitle title={t('MenuCategory')} />
             </Grid.Col>
             <Grid.Col span={12}>
-              <Stack
-                bg="var(--mantine-color-body)"
-                align="stretch"
-                justify="center"
-                gap="xs"
-                pb={70}
-              >
+              <StackList>
                 {listMenuCategoryApiResponse.items.map((menuCategory) => (
                   <MenuCategoryComponent
                     key={`menu_category_${menuCategory.id}`}
@@ -97,7 +92,7 @@ export default function MenuCategoryPage() {
                     onSwitch={onMenuCategorySwitch}
                   />
                 ))}
-              </Stack>
+              </StackList>
               {listMenuCategoryApiResponse.items.length == 0 && (
                 <MenuCategoryEmptyStateComponent />
               )}

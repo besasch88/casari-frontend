@@ -1,11 +1,12 @@
 import { Layout } from '@components/Layout/Layout';
 import { PageTitle } from '@components/PageTitle/PageTitle';
+import { StackList } from '@components/StackList/StackList';
 import { defaultGetMenuItemApiResponse } from '@dtos/defaultMenuItemDto';
 import { defaultListMenuOptionApiResponse } from '@dtos/defaultMenuOptionDto';
 import { GetMenuItemOutputDto } from '@dtos/menuItemDto';
 import { ListMenuOptionOutputDto } from '@dtos/menuOptionDto';
 import { AuthGuard } from '@guards/AuthGuard';
-import { Grid, Group, Loader, Stack } from '@mantine/core';
+import { Grid, Group, Loader } from '@mantine/core';
 import { menuItemService } from '@services/menuItemService';
 import { menuOptionService } from '@services/menuOptionService';
 import { getErrorMessage } from '@utils/errUtils';
@@ -94,13 +95,7 @@ export default function MenuOptionPage() {
               />
             </Grid.Col>
             <Grid.Col span={12}>
-              <Stack
-                bg="var(--mantine-color-body)"
-                align="stretch"
-                justify="center"
-                gap="xs"
-                pb={70}
-              >
+              <StackList>
                 {listMenuOptionApiResponse.items.map((menuOption) => (
                   <MenuOptionComponent
                     key={`menu_item_el_${menuOption.id}`}
@@ -109,7 +104,7 @@ export default function MenuOptionPage() {
                     onSwitch={onMenuOptionItemSwitch}
                   />
                 ))}
-              </Stack>
+              </StackList>
               {listMenuOptionApiResponse.items.length == 0 && (
                 <MenuOptionEmptyStateComponent />
               )}

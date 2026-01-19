@@ -1,13 +1,21 @@
-import { ActionIcon, Flex, SegmentedControl } from '@mantine/core';
-import { IconCircleArrowLeft } from '@tabler/icons-react';
+import { Icon } from '@components/Icon/Icon';
+import { ActionIcon, Flex, Menu, SegmentedControl, Text } from '@mantine/core';
+import { IconCircleArrowLeft, IconDots } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+
+export interface PageTitleAction {
+  icon: Icon;
+  text: string;
+  onClick: () => void;
+}
 
 export interface PageTitleProps {
   title: string;
   backLink?: string;
+  actions?: PageTitleAction[];
 }
 
-export function PageTitle({ title, backLink }: PageTitleProps) {
+export function PageTitle({ title, backLink, actions }: PageTitleProps) {
   const navigate = useNavigate();
   return (
     <Flex wrap="nowrap" w={'100%'} gap={10}>
@@ -28,6 +36,40 @@ export function PageTitle({ title, backLink }: PageTitleProps) {
         size="lg"
         data={[{ label: title.toUpperCase(), value: title.toUpperCase() }]}
       ></SegmentedControl>
+      {actions && actions.length > 0 && (
+        <Menu
+          shadow="lg"
+          width={300}
+          position="bottom-end"
+          withArrow
+          transitionProps={{ transition: 'rotate-right', duration: 150 }}
+        >
+          <Menu.Target>
+            <ActionIcon
+              variant="outline"
+              aria-label="Actions"
+              size={50}
+              color="var(--mantine-color-blue-3)"
+            >
+              <IconDots stroke={1.5} />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            {actions.map((action, index) => (
+              <div key={`title_menu_item_${index}`}>
+                <Menu.Item
+                  onClick={action.onClick}
+                  leftSection={<action.icon size={30} />}
+                  my={10}
+                >
+                  <Text size="lg">{action.text}</Text>
+                </Menu.Item>
+                {index + 1 < actions.length && <Menu.Divider />}
+              </div>
+            ))}
+          </Menu.Dropdown>
+        </Menu>
+      )}
     </Flex>
   );
 }

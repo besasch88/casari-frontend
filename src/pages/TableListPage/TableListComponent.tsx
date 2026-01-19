@@ -1,7 +1,6 @@
 import { Table } from '@entities/table';
 import { Button } from '@mantine/core';
 import { IconCircleCheck, IconProgress } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
 
 export interface TableListComponentProps {
   table: Table;
@@ -9,9 +8,6 @@ export interface TableListComponentProps {
 }
 
 export default function TableListComponent({ table, onClick }: TableListComponentProps) {
-  // Services
-  const { t } = useTranslation();
-
   if (table.close) {
     return (
       <Button
@@ -24,7 +20,7 @@ export default function TableListComponent({ table, onClick }: TableListComponen
         bd={'1px solid var(--mantine-color-dark-1)'}
         c="var(--mantine-color-text)"
       >
-        {t('tableTable')} {table.name}
+        {table.name.toUpperCase()}
       </Button>
     );
   } else {
