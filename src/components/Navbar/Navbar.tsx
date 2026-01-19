@@ -9,16 +9,16 @@ import {
 } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import classes from './Menu.module.css';
-import { MenuItem, MenuItemProps } from './MenuItem';
+import classes from './Navbar.module.css';
+import { NavbarItem, NavbarItemProps } from './NavbarItem';
 
-export function Menu() {
+export function Navbar() {
   const auth = useAuth();
 
   // Data
   const { t } = useTranslation();
-  const [menuItems, setMenuItems] = useState<MenuItemProps[]>([]);
-  const [footerMenuItems, setFooterMenuItems] = useState<MenuItemProps[]>([]);
+  const [menuItems, setMenuItems] = useState<NavbarItemProps[]>([]);
+  const [footerMenuItems, setFooterMenuItems] = useState<NavbarItemProps[]>([]);
 
   useEffect(() => {
     const items = [];
@@ -58,13 +58,15 @@ export function Menu() {
   }, [auth, t]);
 
   // Content
-  const menuComponents = menuItems.map((item) => <MenuItem {...item} key={item.label} />);
+  const menuComponents = menuItems.map((item) => (
+    <NavbarItem {...item} key={item.label} />
+  ));
   const footerMenuComponents = footerMenuItems.map((item) => (
-    <MenuItem {...item} key={item.label} />
+    <NavbarItem {...item} key={item.label} />
   ));
 
   return (
-    <Paper className={classes.menuBox} bg={''} p={'xs'}>
+    <Paper className={classes.navbarBox} bg={''} p={'xs'}>
       <nav className={classes.navbar}>
         <ScrollArea className={classes.links}>
           <div>{menuComponents}</div>

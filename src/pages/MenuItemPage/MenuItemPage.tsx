@@ -1,62 +1,49 @@
-import { EmptyState } from '@components/EmptyState/EmptyState';
 import { Layout } from '@components/Layout/Layout';
 
+import { PageTitle } from '@components/PageTitle/PageTitle';
 import { defaultGetMenuCategoryApiResponse } from '@dtos/defaultMenuCategoryDto';
 import { defaultListMenuItemApiResponse } from '@dtos/defaultMenuItemDto';
 import { GetMenuCategoryOutputDto } from '@dtos/menuCategoryDto';
 import { ListMenuItemOutputDto } from '@dtos/menuItemDto';
 import { AuthGuard } from '@guards/AuthGuard';
-import {
-  ActionIcon,
-  Flex,
-  Grid,
-  Group,
-  Loader,
-  SegmentedControl,
-  Stack,
-} from '@mantine/core';
+import { Grid, Group, Loader, Stack } from '@mantine/core';
 import { menuCategoryService } from '@services/menuCategoryService';
 import { menuItemService } from '@services/menuItemService';
-import { IconCircleArrowLeft } from '@tabler/icons-react';
 import { getErrorMessage } from '@utils/errUtils';
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import classes from './MenuItem.module.css';
-import MenuItemItemComponent from './MenuItemItemComponent';
+import MenuItemComponent from './MenuItemComponent';
+import MenuItemEmptyStateComponent from './MenuItemEmptyStateComponent';
 
 export default function MenuItemPage() {
   const { menuCategoryId } = useParams();
   // Services
   const navigate = useNavigate();
-  const { t } = useTranslation();
 
   // States
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [, setApiLoading] = useState(false);
   const [getMenuCategoryApiResponse, setMenuCategoryApiResponse] =
     useState<GetMenuCategoryOutputDto>(defaultGetMenuCategoryApiResponse);
   const [listMenuItemApiResponse, setListMenuItemApiResponse] =
     useState<ListMenuItemOutputDto>(defaultListMenuItemApiResponse);
 
-  const onMenuItemItemClick = (id: string) => {
+  const onMenuItemClick = (id: string) => {
     navigate(`/menu/items/${id}`, { replace: true });
   };
 
-  const onMenuItemItemSwitch = async (id: string, active: boolean) => {
+  const onMenuItemSwitch = async (id: string, active: boolean) => {
     try {
-      setApiLoading(true);
       const menuItem = await menuItemService.updateMenuItem({
         id: id,
         active: active,
       });
-      listMenuItemApiResponse.items = listMenuItemApiResponse.items.map((item) => {
+      const newListMenuItemApiResponse = { ...listMenuItemApiResponse };
+      newListMenuItemApiResponse.items = newListMenuItemApiResponse.items.map((item) => {
         return item.id == menuItem.item.id ? menuItem.item : item;
       });
+      setListMenuItemApiResponse(newListMenuItemApiResponse);
     } catch (err) {
       console.error(err);
-    } finally {
-      setApiLoading(false);
     }
   };
 
@@ -64,14 +51,13 @@ export default function MenuItemPage() {
   useEffect(() => {
     (async () => {
       try {
-        setApiLoading(true);
         const categoryData = await menuCategoryService.getMenuCategory({
           id: menuCategoryId!,
         });
+        setMenuCategoryApiResponse(categoryData);
         const data = await menuItemService.listMenuItems({
           menuCategoryId: menuCategoryId!,
         });
-        setMenuCategoryApiResponse(categoryData);
         setListMenuItemApiResponse(data);
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {
@@ -83,7 +69,6 @@ export default function MenuItemPage() {
             break;
         }
       } finally {
-        setApiLoading(false);
         setPageLoaded(true);
       }
     })();
@@ -94,27 +79,7 @@ export default function MenuItemPage() {
       <Layout>
         {!pageLoaded && (
           <Grid.Col span={12}>
-            <Flex wrap="nowrap" w={'100%'} gap={10}>
-              <ActionIcon
-                variant="outline"
-                aria-label="Back"
-                size={50}
-                onClick={() => navigate('/menu/categories', { replace: true })}
-                color="var(--mantine-color-blue-3)"
-              >
-                <IconCircleArrowLeft stroke={1.5} />
-              </ActionIcon>
-              <SegmentedControl
-                fullWidth
-                w={'100%'}
-                classNames={{
-                  indicator: classes.indicator,
-                  root: classes.segmentRoot,
-                }}
-                size="lg"
-                data={[{ label: '...', value: 'menu' }]}
-              />
-            </Flex>
+            <PageTitle title={'...'} backLink={'/menu/categories'} />
             <Group mt={75} justify="center" align="center">
               <Loader type="dots" />
             </Group>
@@ -123,32 +88,10 @@ export default function MenuItemPage() {
         {pageLoaded && (
           <>
             <Grid.Col span={12}>
-              <Flex wrap="nowrap" w={'100%'} gap={10}>
-                <ActionIcon
-                  variant="outline"
-                  aria-label="Back"
-                  size={50}
-                  onClick={() => navigate('/menu/categories', { replace: true })}
-                  color="var(--mantine-color-blue-3)"
-                >
-                  <IconCircleArrowLeft stroke={1.5} />
-                </ActionIcon>
-                <SegmentedControl
-                  fullWidth
-                  w={'100%'}
-                  classNames={{
-                    indicator: classes.indicator,
-                    root: classes.segmentRoot,
-                  }}
-                  size="lg"
-                  data={[
-                    {
-                      label: getMenuCategoryApiResponse.item.title.toUpperCase(),
-                      value: 'menu',
-                    },
-                  ]}
-                />
-              </Flex>
+              <PageTitle
+                title={getMenuCategoryApiResponse.item.title}
+                backLink={'/menu/categories'}
+              />
             </Grid.Col>
             <Grid.Col span={12}>
               <Stack
@@ -159,22 +102,17 @@ export default function MenuItemPage() {
                 pb={70}
               >
                 {listMenuItemApiResponse.items.map((menuItem) => (
-                  <MenuItemItemComponent
-                    key={`menu_item_el_${menuItem.id}`}
+                  <MenuItemComponent
+                    key={`menu_item_${menuItem.id}`}
                     menuItem={menuItem}
-                    onClick={onMenuItemItemClick}
-                    onSwitch={onMenuItemItemSwitch}
+                    onClick={onMenuItemClick}
+                    onSwitch={onMenuItemSwitch}
                   />
                 ))}
-                {listMenuItemApiResponse.items.length == 0 && (
-                  <EmptyState
-                    key={`menu_item_el_no_results`}
-                    title={t('menuItemEmptyList')}
-                    text={t('menuItemEmptyListDescription')}
-                    imageName="no-results"
-                  ></EmptyState>
-                )}
               </Stack>
+              {listMenuItemApiResponse.items.length == 0 && (
+                <MenuItemEmptyStateComponent />
+              )}
             </Grid.Col>
           </>
         )}

@@ -1,3 +1,5 @@
+import { MenuOption } from './menuOption';
+
 export type MenuItem = {
   id: string;
   menuCategoryId: string;
@@ -7,4 +9,5 @@ export type MenuItem = {
   price: number;
   createdAt: string;
   updatedAt: string;
+  options: MenuOption[];
 };

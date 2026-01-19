@@ -9,6 +9,7 @@ export const defaultMenuCategory: MenuCategory = {
   printerId: '',
   createdAt: '',
   updatedAt: '',
+  items: [],
 };
 
 export const defaultGetMenuCategoryApiResponse: GetMenuCategoryOutputDto = {

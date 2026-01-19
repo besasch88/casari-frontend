@@ -42,7 +42,3 @@
   background-color: var(--mantine-color-blue-2);
   font-weight: 600;
 }
-
-.chevron {
-  transition: transform 200ms ease;
-}

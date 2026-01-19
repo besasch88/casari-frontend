@@ -3,12 +3,12 @@ import { Button } from '@mantine/core';
 import { IconCircleCheck, IconProgress } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-export interface TableItemComponentProps {
+export interface TableListComponentProps {
   table: Table;
   onClick: (id: string) => void;
 }
 
-export default function TableItemComponent({ table, onClick }: TableItemComponentProps) {
+export default function TableListComponent({ table, onClick }: TableListComponentProps) {
   // Services
   const { t } = useTranslation();
 
@@ -36,7 +36,7 @@ export default function TableItemComponent({ table, onClick }: TableItemComponen
         variant="default"
         onClick={() => onClick(table.id)}
       >
-        {t('tableTable')} {table.name}
+        {table.name.toUpperCase()}
       </Button>
     );
   }

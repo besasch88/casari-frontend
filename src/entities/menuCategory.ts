@@ -1,3 +1,5 @@
+import { MenuItem } from './menuItem';
+
 export type MenuCategory = {
   id: string;
   title: string;
@@ -6,4 +8,5 @@ export type MenuCategory = {
   printerId: string | null;
   createdAt: string;
   updatedAt: string;
+  items: MenuItem[];
 };

@@ -1,5 +1,5 @@
 import { Header } from '@components/Header/Header';
-import { Menu } from '@components/Menu/Menu';
+import { Navbar } from '@components/Navbar/Navbar';
 import {
   AppShell,
   AppShellHeader,
@@ -25,7 +25,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Header onMenuToggle={setOpen} />
       </AppShellHeader>
       <AppShellNavbar zIndex={300} p="md" pt={0} bd={0}>
-        <Menu />
+        <Navbar />
       </AppShellNavbar>
       <AppShellMain>
         <Container fluid>

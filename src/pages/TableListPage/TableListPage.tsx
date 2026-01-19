@@ -28,10 +28,10 @@ import { getErrorMessage } from '@utils/errUtils';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import classes from './Table.module.css';
-import TableItemComponent from './TableItemComponent';
+import TableListComponent from './TableListComponent';
+import TableListNoPermissionsEmptyState from './TableListNoPermissionsEmptyState';
 
-export default function TablePage() {
+export default function TableListPage() {
   // Services
   const navigate = useNavigate();
   const auth = useAuth();
@@ -136,10 +136,6 @@ export default function TablePage() {
               <SegmentedControl
                 onChange={setSelectedSection}
                 fullWidth
-                classNames={{
-                  indicator: classes.indicator,
-                  root: classes.segmentRoot,
-                }}
                 size="lg"
                 data={[
                   { label: t('tableMyTableMenu').toUpperCase(), value: 'my-tables' },
@@ -159,10 +155,10 @@ export default function TablePage() {
                   gap="xs"
                   pb={70}
                 >
-                  {getMyTables(listTableApiResponse.items).map((table, index) => {
+                  {getMyTables(listTableApiResponse.items).map((table) => {
                     return (
-                      <TableItemComponent
-                        key={`my_${index}`}
+                      <TableListComponent
+                        key={`my_table_${table.id}`}
                         table={table}
                         onClick={onTableItemClick}
                       />
@@ -189,10 +185,10 @@ export default function TablePage() {
                     gap="xs"
                     pb={70}
                   >
-                    {getOtherTables(listTableApiResponse.items).map((table, index) => {
+                    {getOtherTables(listTableApiResponse.items).map((table) => {
                       return (
-                        <TableItemComponent
-                          key={`other_${index}`}
+                        <TableListComponent
+                          key={`other_table_${table.id}`}
                           table={table}
                           onClick={onTableItemClick}
                         />
@@ -208,11 +204,7 @@ export default function TablePage() {
                   </Stack>
                 )}
                 {!auth.hasPermissionTo('read-other-tables') && (
-                  <EmptyState
-                    title={t('tableForbidden')}
-                    text={t('tableForbiddenDescription')}
-                    imageName="rs-escape"
-                  ></EmptyState>
+                  <TableListNoPermissionsEmptyState />
                 )}
               </Grid.Col>
             )}

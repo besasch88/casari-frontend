@@ -1,16 +1,16 @@
-import { EmptyState } from '@components/EmptyState/EmptyState';
 import { Layout } from '@components/Layout/Layout';
+import { PageTitle } from '@components/PageTitle/PageTitle';
 import { defaultListMenuCategoryApiResponse } from '@dtos/defaultMenuCategoryDto';
 import { ListMenuCategoryOutputDto } from '@dtos/menuCategoryDto';
 import { AuthGuard } from '@guards/AuthGuard';
-import { Grid, Group, Loader, SegmentedControl, Stack } from '@mantine/core';
+import { Grid, Group, Loader, Stack } from '@mantine/core';
 import { menuCategoryService } from '@services/menuCategoryService';
 import { getErrorMessage } from '@utils/errUtils';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import classes from './MenuCategory.module.css';
-import MenuCategoryItemComponent from './MenuCategoryItemComponent';
+import MenuCategoryComponent from './MenuCategoryComponent';
+import MenuCategoryEmptyStateComponent from './MenuCategoryEmptyStateComponent';
 
 export default function MenuCategoryPage() {
   // Services
@@ -19,30 +19,28 @@ export default function MenuCategoryPage() {
 
   // States
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [, setApiLoading] = useState(false);
   const [listMenuCategoryApiResponse, setListMenuCategoryApiResponse] =
     useState<ListMenuCategoryOutputDto>(defaultListMenuCategoryApiResponse);
 
-  const onMenuCategoryItemClick = (id: string) => {
+  const onMenuCategoryClick = (id: string) => {
     navigate(`${id}`, { replace: true });
   };
 
-  const onMenuCategoryItemSwitch = async (id: string, active: boolean) => {
+  const onMenuCategorySwitch = async (id: string, active: boolean) => {
     try {
-      setApiLoading(true);
-      const category = await menuCategoryService.updateMenuCategory({
+      const menuCategory = await menuCategoryService.updateMenuCategory({
         id: id,
         active: active,
       });
-      listMenuCategoryApiResponse.items = listMenuCategoryApiResponse.items.map(
+      const newListMenuCategoryApiResponse = { ...listMenuCategoryApiResponse };
+      newListMenuCategoryApiResponse.items = newListMenuCategoryApiResponse.items.map(
         (item) => {
-          return item.id == category.item.id ? category.item : item;
+          return item.id == menuCategory.item.id ? menuCategory.item : item;
         }
       );
+      setListMenuCategoryApiResponse(newListMenuCategoryApiResponse);
     } catch (err) {
       console.error(err);
-    } finally {
-      setApiLoading(false);
     }
   };
 
@@ -50,7 +48,6 @@ export default function MenuCategoryPage() {
   useEffect(() => {
     (async () => {
       try {
-        setApiLoading(true);
         const data = await menuCategoryService.listMenuCategories();
         setListMenuCategoryApiResponse(data);
       } catch (err: unknown) {
@@ -63,7 +60,6 @@ export default function MenuCategoryPage() {
             break;
         }
       } finally {
-        setApiLoading(false);
         setPageLoaded(true);
       }
     })();
@@ -74,15 +70,7 @@ export default function MenuCategoryPage() {
       <Layout>
         {!pageLoaded && (
           <Grid.Col span={12}>
-            <SegmentedControl
-              fullWidth
-              classNames={{
-                indicator: classes.indicator,
-                root: classes.segmentRoot,
-              }}
-              size="lg"
-              data={[{ label: t('MenuCategory').toUpperCase(), value: 'menu' }]}
-            />
+            <PageTitle title={t('MenuCategory')} />
             <Group mt={75} justify="center" align="center">
               <Loader type="dots" />
             </Group>
@@ -91,15 +79,7 @@ export default function MenuCategoryPage() {
         {pageLoaded && (
           <>
             <Grid.Col span={12}>
-              <SegmentedControl
-                fullWidth
-                classNames={{
-                  indicator: classes.indicator,
-                  root: classes.segmentRoot,
-                }}
-                size="lg"
-                data={[{ label: t('MenuCategory').toUpperCase(), value: 'menu' }]}
-              />
+              <PageTitle title={t('MenuCategory')} />
             </Grid.Col>
             <Grid.Col span={12}>
               <Stack
@@ -110,22 +90,17 @@ export default function MenuCategoryPage() {
                 pb={70}
               >
                 {listMenuCategoryApiResponse.items.map((menuCategory) => (
-                  <MenuCategoryItemComponent
-                    key={`menu_category_el_${menuCategory.id}`}
+                  <MenuCategoryComponent
+                    key={`menu_category_${menuCategory.id}`}
                     menuCategory={menuCategory}
-                    onClick={onMenuCategoryItemClick}
-                    onSwitch={onMenuCategoryItemSwitch}
+                    onClick={onMenuCategoryClick}
+                    onSwitch={onMenuCategorySwitch}
                   />
                 ))}
-                {listMenuCategoryApiResponse.items.length == 0 && (
-                  <EmptyState
-                    key={`menu_category_el_no_results`}
-                    title={t('menuCategoryEmptyList')}
-                    text={t('menuCategoryEmptyListDescription')}
-                    imageName="no-results"
-                  ></EmptyState>
-                )}
               </Stack>
+              {listMenuCategoryApiResponse.items.length == 0 && (
+                <MenuCategoryEmptyStateComponent />
+              )}
             </Grid.Col>
           </>
         )}

@@ -123,6 +123,15 @@ export const mantineTheme: MantineThemeOverride = createTheme({
       defaultProps: {
         size: 'sm',
       },
+      styles: () => ({
+        root: {
+          backgroundColor: 'var(--mantine-color-white)',
+          border: '1px solid var(--mantine-color-blue-3)',
+        },
+        indicator: {
+          backgroundColor: 'var(--mantine-color-blue-3)',
+        },
+      }),
     },
     Pagination: {
       defaultProps: {

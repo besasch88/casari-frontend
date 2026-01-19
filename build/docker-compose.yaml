@@ -1,5 +1,5 @@
 services:
-  mm-webapp:
+  ceng-frontend:
     build:
       context: ../
       dockerfile: build/docker-webapp

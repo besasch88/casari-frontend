@@ -10,6 +10,7 @@ export const defaultMenuItem: MenuItem = {
   price: 0,
   createdAt: '',
   updatedAt: '',
+  options: [],
 };
 
 export const defaultGetMenuItemApiResponse: GetMenuItemOutputDto = {
