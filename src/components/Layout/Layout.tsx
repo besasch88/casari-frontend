@@ -29,7 +29,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </AppShellNavbar>
       <AppShellMain>
         <Container fluid>
-          <Grid gutter="md" columns={12}>
+          <Grid gutter="md" columns={12} mb={100} style={{ overflow: 'hidden' }}>
             {children}
           </Grid>
         </Container>

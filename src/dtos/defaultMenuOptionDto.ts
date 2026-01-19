@@ -8,6 +8,7 @@ export const defaultMenuOption: MenuOption = {
   position: 1,
   active: false,
   price: 0,
+  quantityOrdered: 2,
   createdAt: '',
   updatedAt: '',
 };

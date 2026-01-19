@@ -5,13 +5,7 @@ export interface StackListProps {
 }
 export function StackList({ children }: StackListProps) {
   return (
-    <Stack
-      bg="var(--mantine-color-body)"
-      align="stretch"
-      justify="center"
-      gap="xs"
-      pb={70}
-    >
+    <Stack bg="var(--mantine-color-body)" align="stretch" justify="center" gap="xs">
       {children}
     </Stack>
   );

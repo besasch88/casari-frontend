@@ -9,7 +9,8 @@ import { GetTableOutputDto } from '@dtos/tableDto';
 import { Menu } from '@entities/menu';
 import { MenuCategory } from '@entities/menuCategory';
 import { MenuItem } from '@entities/menuItem';
-import { MenuOption } from '@entities/menuOption';
+import { Order } from '@entities/order';
+import { OrderCourse } from '@entities/orderCourse';
 import { AuthGuard } from '@guards/AuthGuard';
 import {
   Affix,
@@ -22,13 +23,20 @@ import {
 } from '@mantine/core';
 import { menuService } from '@services/menuService';
 import { tableService } from '@services/tableService';
-import { IconCirclePlus, IconClock } from '@tabler/icons-react';
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconCirclePlus,
+  IconClock,
+} from '@tabler/icons-react';
 import { getErrorMessage } from '@utils/errUtils';
+import cloneDeep from 'lodash.clonedeep';
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 import classes from './Order.module.css';
-import OrderItemComponent from './OrderItemComponent';
+
+import OrderComponent from './OrderComponent';
 
 export default function OrderPage() {
   const { tableId } = useParams();
@@ -36,30 +44,38 @@ export default function OrderPage() {
   // Services
   const navigate = useNavigate();
   const auth = useAuth();
-  const { t } = useTranslation();
 
   // States
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [apiLoading, setApiLoading] = useState(false);
   const [getTableApiResponse, setTableApiResponse] = useState<GetTableOutputDto>(
     defaultGetTableApiResponse
   );
   const [getMenuApiResponse, setMenuApiResponse] = useState<GetMenuOutputDto>(
     defaultGetMenuApiResponse
   );
-  const [selectedCategory, setSelectedCategory] = useState<MenuCategory | null>(null);
-  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>();
+  const [expandedItemId, setExpandedItemId] = useState<string>();
+  const [order, setOrder] = useState<Order>({ courses: [] });
+  const [selectedCourse, setSelectedCourse] = useState<OrderCourse>();
 
   // Effects
   useEffect(() => {
     (async () => {
       try {
-        setApiLoading(true);
-        const data = await menuService.getMenu();
-        setMenuApiResponse(data);
-        setSelectedCategory(data.item.categories[0]);
         const dataTable = await tableService.getTable({ id: tableId! });
         setTableApiResponse(dataTable);
+
+        const data = await menuService.getMenu();
+        setMenuApiResponse(data);
+        // Retrieve order (if any) - Simulate no orders
+        const newCourse: OrderCourse = {
+          id: uuidv4().toString(),
+          menu: cloneDeep(data.item),
+        };
+        const newOrder: Order = { courses: [newCourse] };
+        setOrder(newOrder);
+        setSelectedCourse(newCourse);
+        setSelectedCategoryId(newCourse.menu.categories[0].id);
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {
           case 'refresh-token-failed':
@@ -70,22 +86,166 @@ export default function OrderPage() {
             break;
         }
       } finally {
-        setApiLoading(false);
         setPageLoaded(true);
       }
     })();
   }, [navigate, tableId]);
 
-  const getCategories = (menu: Menu): MenuCategory[] => {
-    return menu.categories;
+  const nextCourse = () => {
+    if (!selectedCourse) return;
+    const i = getSelectedCourseIndex();
+    if (isSelectedCourseLast()) {
+      const newMenu = cloneDeep(getMenuApiResponse);
+      const newCourse: OrderCourse = {
+        id: uuidv4().toString(),
+        menu: newMenu.item,
+      };
+      order.courses.push(newCourse);
+      setSelectedCourse(newCourse);
+      setSelectedCategoryId(newCourse.menu.categories[0].id);
+    } else {
+      setSelectedCourse(order.courses[i + 1]);
+      setSelectedCategoryId(order.courses[i + 1].menu.categories[0].id);
+    }
   };
 
-  const getItems = (category: MenuCategory): MenuItem[] => {
-    return category.items;
+  const previousCourse = () => {
+    if (!selectedCourse) return;
+    const i = getSelectedCourseIndex();
+    if (isSelectedCourseFirst()) {
+      return;
+    }
+    setSelectedCourse(order.courses[i - 1]);
+    setSelectedCategoryId(order.courses[i - 1].menu.categories[0].id);
   };
 
-  const getItemOptions = (item: MenuItem): MenuOption[] => {
-    return item.options;
+  const getSelectedCourseIndex = (): number => {
+    return order.courses.findIndex((x) => x.id === selectedCourse?.id);
+  };
+  const isSelectedCourseFirst = (): boolean => {
+    return order.courses[0].id === selectedCourse?.id;
+  };
+
+  const isSelectedCourseLast = (): boolean => {
+    return order.courses[order.courses.length - 1].id === selectedCourse?.id;
+  };
+
+  const getMenu = (): Menu => {
+    if (!selectedCourse) return { categories: [] };
+    return selectedCourse.menu;
+  };
+
+  const getCategoriesByMenu = (): MenuCategory[] => {
+    const menu = getMenu();
+    return menu.categories.filter((x) => x.active);
+  };
+
+  const getItems = (categoryId: string): MenuItem[] => {
+    const category = getCategoriesByMenu().find((x) => x.id == categoryId);
+    if (!category) return [];
+    return category.items.filter((x) => x.active);
+  };
+
+  const canEdit = () => {
+    if (auth.getUserId() === getTableApiResponse.item.userId) {
+      return auth.hasPermissionTo('write-my-tables');
+    } else {
+      return auth.hasPermissionTo('write-other-tables');
+    }
+  };
+
+  const onAddItemQuantity = (id: string) => {
+    if (!selectedCourse) return;
+    selectedCourse.menu.categories = selectedCourse.menu.categories.map((c) => {
+      c.items = c.items.map((i) => {
+        if (i.id === id) {
+          if (!i.quantityOrdered) {
+            i.quantityOrdered = 1;
+          } else {
+            i.quantityOrdered++;
+          }
+        }
+        return i;
+      });
+      return c;
+    });
+    setSelectedCourse({ ...selectedCourse });
+    setOrder({ ...order });
+  };
+
+  const onRemoveItemQuantity = (id: string) => {
+    if (!selectedCourse) return;
+    selectedCourse.menu.categories = selectedCourse.menu.categories.map((c) => {
+      c.items = c.items.map((i) => {
+        if (i.id === id) {
+          if (!i.quantityOrdered || i.quantityOrdered == 0) {
+            i.quantityOrdered = 0;
+          } else {
+            i.quantityOrdered--;
+          }
+        }
+        return i;
+      });
+      return c;
+    });
+    setSelectedCourse({ ...selectedCourse });
+    setOrder({ ...order });
+  };
+
+  const onAddOptionQuantity = (id: string) => {
+    if (!selectedCourse) return;
+    selectedCourse.menu.categories = selectedCourse.menu.categories.map((c) => {
+      c.items = c.items.map((i) => {
+        i.options = i.options.map((o) => {
+          if (o.id === id) {
+            if (!o.quantityOrdered) {
+              o.quantityOrdered = 1;
+            } else {
+              o.quantityOrdered++;
+            }
+          }
+          return o;
+        });
+        if (i.options.length > 0) {
+          i.quantityOrdered = i.options.reduce(
+            (sum, o) => sum + (o.quantityOrdered ?? 0),
+            0
+          );
+        }
+        return i;
+      });
+      return c;
+    });
+    setSelectedCourse({ ...selectedCourse });
+    setOrder({ ...order });
+  };
+
+  const onRemoveOptionQuantity = (id: string) => {
+    if (!selectedCourse) return;
+    selectedCourse.menu.categories = selectedCourse.menu.categories.map((c) => {
+      c.items = c.items.map((i) => {
+        i.options = i.options.map((o) => {
+          if (o.id === id) {
+            if (!o.quantityOrdered || o.quantityOrdered == 0) {
+              o.quantityOrdered = 0;
+            } else {
+              o.quantityOrdered--;
+            }
+          }
+          return o;
+        });
+        if (i.options.length > 0) {
+          i.quantityOrdered = i.options.reduce(
+            (sum, o) => sum + (o.quantityOrdered ?? 0),
+            0
+          );
+        }
+        return i;
+      });
+      return c;
+    });
+    setSelectedCourse({ ...selectedCourse });
+    setOrder({ ...order });
   };
 
   const getActions = () => {
@@ -106,7 +266,7 @@ export default function OrderPage() {
         },
         {
           icon: IconClock,
-          text: 'STAMPA ORDRINE',
+          text: 'STAMPA ORDINE',
           onClick: () => alert('ordine'),
         },
         {
@@ -123,9 +283,6 @@ export default function OrderPage() {
     }
   };
 
-  const onSelectedCategory = (categoryIndex: string) => {
-    setSelectedCategory(getCategories(getMenuApiResponse.item)[Number(categoryIndex)]);
-  };
   // Content
   return (
     <AuthGuard>
@@ -153,36 +310,77 @@ export default function OrderPage() {
             </Grid.Col>
             <Grid.Col span={12}>
               <SegmentedControl
-                onChange={onSelectedCategory}
+                onChange={setSelectedCategoryId}
                 fullWidth
+                value={selectedCategoryId}
                 classNames={{
                   indicator: classes.indicator,
                   root: classes.segmentRoot,
                 }}
                 size="lg"
-                data={getCategories(getMenuApiResponse.item).map((category, index) => {
-                  return { label: category.title, value: index.toString() };
+                data={getCategoriesByMenu().map((category) => {
+                  return { label: category.title, value: category.id };
                 })}
               />
             </Grid.Col>
             <Grid.Col span={12}>
               <StackList>
-                {selectedCategory &&
-                  getItems(selectedCategory!).map((menuItem, index) => {
+                {selectedCategoryId &&
+                  getItems(selectedCategoryId).map((menuItem, index) => {
                     return (
-                      <OrderItemComponent
+                      <OrderComponent
                         key={`menu_item_${index}`}
                         menuItem={menuItem}
-                        onClick={() => {}}
+                        expandedItemId={expandedItemId}
+                        onExpanded={setExpandedItemId}
+                        canEdit={canEdit()}
+                        onAddItemQuantity={onAddItemQuantity}
+                        onRemoveItemQuantity={onRemoveItemQuantity}
+                        onAddOptionQuantity={onAddOptionQuantity}
+                        onRemoveOptionQuantity={onRemoveOptionQuantity}
                       />
                     );
                   })}
               </StackList>
             </Grid.Col>
-            <Affix p={'md'} w={'100%'} flex={'width'} position={{ bottom: 0 }}>
-              <Button size="lg" fullWidth leftSection={<IconCirclePlus size={28} />}>
-                {t('Dopo')}
-              </Button>
+            <Affix
+              p={'md'}
+              w={'100%'}
+              position={{ bottom: 0, right: 0 }}
+              style={{
+                borderTop: '1px solid var(--aimm-bg-paper)',
+                background: 'white',
+              }}
+            >
+              <Group justify="space-between" grow w={'100%'}>
+                <Button
+                  size="lg"
+                  style={{
+                    visibility: isSelectedCourseFirst() ? 'hidden' : undefined,
+                    pointerEvents: isSelectedCourseFirst() ? 'none' : undefined,
+                  }}
+                  fullWidth
+                  variant="outline"
+                  onClick={() => previousCourse()}
+                >
+                  {<IconArrowLeft size={28} />}
+                </Button>
+                <Button size="lg" fullWidth>
+                  {getSelectedCourseIndex() + 1}
+                </Button>
+                <Button
+                  size="lg"
+                  fullWidth
+                  onClick={() => nextCourse()}
+                  variant="outline"
+                >
+                  {isSelectedCourseLast() ? (
+                    <IconCirclePlus size={28} />
+                  ) : (
+                    <IconArrowRight size={28} />
+                  )}
+                </Button>
+              </Group>
             </Affix>
           </>
         )}

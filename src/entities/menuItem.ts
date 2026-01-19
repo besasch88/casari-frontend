@@ -7,6 +7,7 @@ export type MenuItem = {
   position: number;
   active: boolean;
   price: number;
+  quantityOrdered: number;
   createdAt: string;
   updatedAt: string;
   options: MenuOption[];
