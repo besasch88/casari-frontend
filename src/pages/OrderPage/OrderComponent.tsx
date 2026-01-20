@@ -1,21 +1,25 @@
 import { MenuItem } from '@entities/menuItem';
+import { MenuOption } from '@entities/menuOption';
+import { OrderCourse } from '@entities/orderCourse';
 import { Badge, Button } from '@mantine/core';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
 export interface OrderComponentProps {
   menuItem: MenuItem;
+  orderCourse: OrderCourse;
   canEdit: boolean;
   expandedItemId?: string;
-  onAddItemQuantity: (id: string) => void;
-  onAddOptionQuantity: (id: string) => void;
-  onRemoveItemQuantity: (id: string) => void;
-  onRemoveOptionQuantity: (id: string) => void;
+  onAddItemQuantity: (itemId: string) => void;
+  onAddOptionQuantity: (itemId: string, optionId: string) => void;
+  onRemoveItemQuantity: (itemId: string) => void;
+  onRemoveOptionQuantity: (itemId: string, optionId: string) => void;
   onExpanded: (id: string) => void;
 }
 
 export default function OrderComponent({
   menuItem,
+  orderCourse,
   canEdit,
   onAddItemQuantity,
   onAddOptionQuantity,
@@ -26,6 +30,35 @@ export default function OrderComponent({
 }: OrderComponentProps) {
   const hasOptions = () => {
     return menuItem.options.length > 0;
+  };
+
+  const getOrderItem = () => {
+    return orderCourse.items.find((x) => x.menuItemId == menuItem.id);
+  };
+
+  const getOrderItemQuantity = () => {
+    const item = getOrderItem();
+    if (!item) return 0;
+    return item.quantityOrdered;
+  };
+
+  const getOrderItemTotalQuantity = (menuItemId: string) => {
+    return orderCourse.items.reduce((total, item) => {
+      if (item.menuItemId == menuItemId && item.menuOptionId != null) {
+        return total + item.quantityOrdered;
+      }
+      return total;
+    }, 0);
+  };
+
+  const getOrderItemByOption = (o: MenuOption) => {
+    return orderCourse.items.find((x) => x.menuOptionId == o.id);
+  };
+
+  const getOrderItemByOptionQuantity = (o: MenuOption) => {
+    const item = getOrderItemByOption(o);
+    if (!item) return 0;
+    return item.quantityOrdered;
   };
 
   useEffect(() => {
@@ -53,7 +86,7 @@ export default function OrderComponent({
                 component="div"
                 variant="filled"
                 onClick={() => {
-                  if (menuItem.quantityOrdered > 0) {
+                  if (getOrderItemQuantity() > 0) {
                     onRemoveItemQuantity(menuItem.id);
                   }
                 }}
@@ -81,9 +114,9 @@ export default function OrderComponent({
           fw={600}
         >
           {menuItem.title}
-          {menuItem.quantityOrdered > 0 && (
+          {getOrderItemQuantity() > 0 && (
             <Badge ml={10} size="lg" color="red" variant="outline" circle>
-              {menuItem.quantityOrdered}
+              {getOrderItemQuantity()}
             </Badge>
           )}
         </Button>
@@ -109,9 +142,9 @@ export default function OrderComponent({
             }}
           >
             {menuItem.title}
-            {menuItem.quantityOrdered > 0 && !isExpanded && (
+            {!isExpanded && getOrderItemTotalQuantity(menuItem.id) > 0 && (
               <Badge ml={10} size="lg" color="red" variant="outline" circle>
-                {menuItem.quantityOrdered}
+                {getOrderItemTotalQuantity(menuItem.id)}
               </Badge>
             )}
           </Button>
@@ -135,8 +168,8 @@ export default function OrderComponent({
                         component="div"
                         variant="filled"
                         onClick={() => {
-                          if (option.quantityOrdered > 0) {
-                            onRemoveOptionQuantity(option.id);
+                          if (getOrderItemByOptionQuantity(option) > 0) {
+                            onRemoveOptionQuantity(menuItem.id, option.id);
                           }
                         }}
                         color="var(--mantine-color-red-text)"
@@ -151,7 +184,7 @@ export default function OrderComponent({
                         component="div"
                         variant="filled"
                         onClick={() => {
-                          onAddOptionQuantity(option.id);
+                          onAddOptionQuantity(menuItem.id, option.id);
                         }}
                         color="var(--mantine-color-green-text)"
                       >
@@ -165,9 +198,9 @@ export default function OrderComponent({
                   fw={300}
                 >
                   {option.title}
-                  {option.quantityOrdered > 0 && (
+                  {getOrderItemByOptionQuantity(option) > 0 && (
                     <Badge ml={10} size="lg" color="red" variant="outline" circle>
-                      {option.quantityOrdered}
+                      {getOrderItemByOptionQuantity(option)}
                     </Badge>
                   )}
                 </Button>

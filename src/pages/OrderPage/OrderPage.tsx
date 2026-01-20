@@ -3,10 +3,11 @@ import { PageTitle } from '@components/PageTitle/PageTitle';
 import { StackList } from '@components/StackList/StackList';
 import { useAuth } from '@context/AuthContext';
 import { defaultGetMenuApiResponse } from '@dtos/defaultMenuDto';
+import { defaultOrderCourse } from '@dtos/defaultOrderCourseDto';
+import { defaultOrder } from '@dtos/defaultOrderDto';
 import { defaultGetTableApiResponse } from '@dtos/defaultTableDto';
 import { GetMenuOutputDto } from '@dtos/MenuDto';
 import { GetTableOutputDto } from '@dtos/tableDto';
-import { Menu } from '@entities/menu';
 import { MenuCategory } from '@entities/menuCategory';
 import { MenuItem } from '@entities/menuItem';
 import { Order } from '@entities/order';
@@ -23,23 +24,22 @@ import {
 } from '@mantine/core';
 import { menuService } from '@services/menuService';
 import { tableService } from '@services/tableService';
-import {
-  IconArrowLeft,
-  IconArrowRight,
-  IconCirclePlus,
-  IconClock,
-} from '@tabler/icons-react';
+import { IconArrowLeft, IconArrowRight, IconCirclePlus } from '@tabler/icons-react';
 import { getErrorMessage } from '@utils/errUtils';
 import cloneDeep from 'lodash.clonedeep';
-import { useEffect, useState } from 'react';
+import debounce from 'lodash.debounce';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import classes from './Order.module.css';
 
 import OrderComponent from './OrderComponent';
+import { getOrderActions } from './OrderMenuComponent';
 
 export default function OrderPage() {
   const { tableId } = useParams();
+  const { t } = useTranslation();
 
   // Services
   const navigate = useNavigate();
@@ -55,27 +55,29 @@ export default function OrderPage() {
   );
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>();
   const [expandedItemId, setExpandedItemId] = useState<string>();
-  const [order, setOrder] = useState<Order>({ courses: [] });
+  const [order, setOrder] = useState<Order>(defaultOrder);
   const [selectedCourse, setSelectedCourse] = useState<OrderCourse>();
 
   // Effects
   useEffect(() => {
     (async () => {
       try {
-        const dataTable = await tableService.getTable({ id: tableId! });
+        if (!tableId) return;
+        const dataTable = await tableService.getTable({ id: tableId });
         setTableApiResponse(dataTable);
-
         const data = await menuService.getMenu();
         setMenuApiResponse(data);
-        // Retrieve order (if any) - Simulate no orders
-        const newCourse: OrderCourse = {
-          id: uuidv4().toString(),
-          menu: cloneDeep(data.item),
+        // @TODO Retrieve Order if available
+        const newOrder = {
+          ...cloneDeep(defaultOrder),
+          tableId: tableId,
+          userId: auth.getUserId()!,
         };
-        const newOrder: Order = { courses: [newCourse] };
+        newOrder.courses = [cloneDeep(defaultOrderCourse)];
+        newOrder.courses[0].id = uuidv4().toString();
         setOrder(newOrder);
-        setSelectedCourse(newCourse);
-        setSelectedCategoryId(newCourse.menu.categories[0].id);
+        setSelectedCourse(newOrder.courses[0]);
+        setSelectedCategoryId(data.item.categories[0].id);
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {
           case 'refresh-token-failed':
@@ -89,23 +91,33 @@ export default function OrderPage() {
         setPageLoaded(true);
       }
     })();
-  }, [navigate, tableId]);
+  }, [navigate, tableId, auth]);
+
+  const debouncedAfterChange = useRef(debounce(() => {}, 1000)).current;
+
+  useEffect(() => {
+    return () => {
+      debouncedAfterChange.cancel();
+    };
+  }, [debouncedAfterChange]);
+
+  const isTableClose = () => {
+    return getTableApiResponse.item.close;
+  };
 
   const nextCourse = () => {
     if (!selectedCourse) return;
     const i = getSelectedCourseIndex();
     if (isSelectedCourseLast()) {
-      const newMenu = cloneDeep(getMenuApiResponse);
       const newCourse: OrderCourse = {
         id: uuidv4().toString(),
-        menu: newMenu.item,
+        orderId: order.id,
+        items: [],
       };
       order.courses.push(newCourse);
       setSelectedCourse(newCourse);
-      setSelectedCategoryId(newCourse.menu.categories[0].id);
     } else {
       setSelectedCourse(order.courses[i + 1]);
-      setSelectedCategoryId(order.courses[i + 1].menu.categories[0].id);
     }
   };
 
@@ -116,12 +128,12 @@ export default function OrderPage() {
       return;
     }
     setSelectedCourse(order.courses[i - 1]);
-    setSelectedCategoryId(order.courses[i - 1].menu.categories[0].id);
   };
 
   const getSelectedCourseIndex = (): number => {
     return order.courses.findIndex((x) => x.id === selectedCourse?.id);
   };
+
   const isSelectedCourseFirst = (): boolean => {
     return order.courses[0].id === selectedCourse?.id;
   };
@@ -130,23 +142,20 @@ export default function OrderPage() {
     return order.courses[order.courses.length - 1].id === selectedCourse?.id;
   };
 
-  const getMenu = (): Menu => {
-    if (!selectedCourse) return { categories: [] };
-    return selectedCourse.menu;
-  };
-
-  const getCategoriesByMenu = (): MenuCategory[] => {
-    const menu = getMenu();
-    return menu.categories.filter((x) => x.active);
+  const getCategories = (): MenuCategory[] => {
+    return getMenuApiResponse.item.categories.filter((x) => x.active);
   };
 
   const getItems = (categoryId: string): MenuItem[] => {
-    const category = getCategoriesByMenu().find((x) => x.id == categoryId);
+    const category = getCategories().find((x) => x.id == categoryId);
     if (!category) return [];
     return category.items.filter((x) => x.active);
   };
 
   const canEdit = () => {
+    if (isTableClose()) {
+      return false;
+    }
     if (auth.getUserId() === getTableApiResponse.item.userId) {
       return auth.hasPermissionTo('write-my-tables');
     } else {
@@ -156,131 +165,89 @@ export default function OrderPage() {
 
   const onAddItemQuantity = (id: string) => {
     if (!selectedCourse) return;
-    selectedCourse.menu.categories = selectedCourse.menu.categories.map((c) => {
-      c.items = c.items.map((i) => {
-        if (i.id === id) {
-          if (!i.quantityOrdered) {
-            i.quantityOrdered = 1;
-          } else {
-            i.quantityOrdered++;
-          }
-        }
-        return i;
-      });
-      return c;
+    const updatedCourse = {
+      ...selectedCourse,
+    };
+    const index = updatedCourse.items.findIndex((i) => {
+      return i.menuItemId == id && i.menuOptionId == null;
     });
-    setSelectedCourse({ ...selectedCourse });
-    setOrder({ ...order });
+    if (index == -1) {
+      updatedCourse.items.push({
+        menuItemId: id,
+        quantityOrdered: 1,
+      });
+    } else {
+      updatedCourse.items[index].quantityOrdered++;
+    }
+    setSelectedCourse(updatedCourse);
+    debouncedAfterChange();
   };
 
   const onRemoveItemQuantity = (id: string) => {
     if (!selectedCourse) return;
-    selectedCourse.menu.categories = selectedCourse.menu.categories.map((c) => {
-      c.items = c.items.map((i) => {
-        if (i.id === id) {
-          if (!i.quantityOrdered || i.quantityOrdered == 0) {
-            i.quantityOrdered = 0;
-          } else {
-            i.quantityOrdered--;
-          }
+
+    const updatedCourse = {
+      ...selectedCourse,
+      items: selectedCourse.items.map((item) => {
+        if (
+          item.menuItemId === id &&
+          item.menuOptionId == null &&
+          item.quantityOrdered > 0
+        ) {
+          return {
+            ...item,
+            quantityOrdered: item.quantityOrdered - 1,
+          };
         }
-        return i;
-      });
-      return c;
-    });
-    setSelectedCourse({ ...selectedCourse });
-    setOrder({ ...order });
+        return item;
+      }),
+    };
+    setSelectedCourse(updatedCourse);
+    debouncedAfterChange();
   };
 
-  const onAddOptionQuantity = (id: string) => {
+  const onAddOptionQuantity = (itemId: string, optionId: string) => {
     if (!selectedCourse) return;
-    selectedCourse.menu.categories = selectedCourse.menu.categories.map((c) => {
-      c.items = c.items.map((i) => {
-        i.options = i.options.map((o) => {
-          if (o.id === id) {
-            if (!o.quantityOrdered) {
-              o.quantityOrdered = 1;
-            } else {
-              o.quantityOrdered++;
-            }
-          }
-          return o;
-        });
-        if (i.options.length > 0) {
-          i.quantityOrdered = i.options.reduce(
-            (sum, o) => sum + (o.quantityOrdered ?? 0),
-            0
-          );
-        }
-        return i;
-      });
-      return c;
+    const updatedCourse = {
+      ...selectedCourse,
+    };
+    const index = updatedCourse.items.findIndex((i) => {
+      return i.menuItemId == itemId && i.menuOptionId == optionId;
     });
-    setSelectedCourse({ ...selectedCourse });
-    setOrder({ ...order });
-  };
-
-  const onRemoveOptionQuantity = (id: string) => {
-    if (!selectedCourse) return;
-    selectedCourse.menu.categories = selectedCourse.menu.categories.map((c) => {
-      c.items = c.items.map((i) => {
-        i.options = i.options.map((o) => {
-          if (o.id === id) {
-            if (!o.quantityOrdered || o.quantityOrdered == 0) {
-              o.quantityOrdered = 0;
-            } else {
-              o.quantityOrdered--;
-            }
-          }
-          return o;
-        });
-        if (i.options.length > 0) {
-          i.quantityOrdered = i.options.reduce(
-            (sum, o) => sum + (o.quantityOrdered ?? 0),
-            0
-          );
-        }
-        return i;
+    if (index == -1) {
+      updatedCourse.items.push({
+        menuItemId: itemId,
+        menuOptionId: optionId,
+        quantityOrdered: 1,
       });
-      return c;
-    });
-    setSelectedCourse({ ...selectedCourse });
-    setOrder({ ...order });
-  };
-
-  const getActions = () => {
-    if (getTableApiResponse.item.close) {
-      return [
-        {
-          icon: IconClock,
-          text: 'RIAPRI',
-          onClick: () => alert('riapri'),
-        },
-      ];
     } else {
-      return [
-        {
-          icon: IconClock,
-          text: 'STAMPA PORTATA',
-          onClick: () => alert('portata'),
-        },
-        {
-          icon: IconClock,
-          text: 'STAMPA ORDINE',
-          onClick: () => alert('ordine'),
-        },
-        {
-          icon: IconClock,
-          text: 'STAMPA PRE-CONTO',
-          onClick: () => alert('pre-conto'),
-        },
-        {
-          icon: IconClock,
-          text: 'CHIUDI TAVOLO',
-          onClick: () => alert('chiudi'),
-        },
-      ];
+      updatedCourse.items[index].quantityOrdered++;
     }
+    setSelectedCourse(updatedCourse);
+    debouncedAfterChange();
+  };
+
+  const onRemoveOptionQuantity = (itemId: string, optionId: string) => {
+    if (!selectedCourse) return;
+
+    const updatedCourse = {
+      ...selectedCourse,
+      items: selectedCourse.items.map((item) => {
+        if (
+          item.menuItemId === itemId &&
+          item.menuOptionId == optionId &&
+          item.quantityOrdered > 0
+        ) {
+          return {
+            ...item,
+            quantityOrdered: item.quantityOrdered - 1,
+          };
+        }
+        return item;
+      }),
+    };
+    setSelectedCourse(updatedCourse);
+    debouncedAfterChange();
   };
 
   // Content
@@ -304,7 +271,9 @@ export default function OrderPage() {
                 <PageTitle
                   title={getTableApiResponse.item.name}
                   backLink="/tables"
-                  actions={getActions()}
+                  actions={getOrderActions(t, isTableClose(), (code: string) => {
+                    alert(code);
+                  })}
                 />
               </Flex>
             </Grid.Col>
@@ -318,7 +287,7 @@ export default function OrderPage() {
                   root: classes.segmentRoot,
                 }}
                 size="lg"
-                data={getCategoriesByMenu().map((category) => {
+                data={getCategories().map((category) => {
                   return { label: category.title, value: category.id };
                 })}
               />
@@ -331,6 +300,7 @@ export default function OrderPage() {
                       <OrderComponent
                         key={`menu_item_${index}`}
                         menuItem={menuItem}
+                        orderCourse={selectedCourse!}
                         expandedItemId={expandedItemId}
                         onExpanded={setExpandedItemId}
                         canEdit={canEdit()}
@@ -365,20 +335,25 @@ export default function OrderPage() {
                 >
                   {<IconArrowLeft size={28} />}
                 </Button>
-                <Button size="lg" fullWidth>
+                <Button size="lg" fullWidth style={{ pointerEvents: 'none' }}>
                   {getSelectedCourseIndex() + 1}
                 </Button>
                 <Button
                   size="lg"
                   fullWidth
+                  style={{
+                    visibility:
+                      isSelectedCourseLast() && isTableClose() ? 'hidden' : undefined,
+                    pointerEvents:
+                      isSelectedCourseLast() && isTableClose() ? 'none' : undefined,
+                  }}
                   onClick={() => nextCourse()}
                   variant="outline"
                 >
-                  {isSelectedCourseLast() ? (
+                  {isSelectedCourseLast() && !isTableClose() && (
                     <IconCirclePlus size={28} />
-                  ) : (
-                    <IconArrowRight size={28} />
                   )}
+                  {!isSelectedCourseLast() && <IconArrowRight size={28} />}
                 </Button>
               </Group>
             </Affix>

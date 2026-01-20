@@ -5,7 +5,6 @@ export type MenuOption = {
   position: number;
   active: boolean;
   price: number;
-  quantityOrdered: number;
   createdAt: string;
   updatedAt: string;
 };

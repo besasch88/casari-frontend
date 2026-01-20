@@ -1,6 +1,11 @@
-import { Menu } from './menu';
+export type OrderItem = {
+  menuItemId: string;
+  menuOptionId?: string;
+  quantityOrdered: number;
+};
 
 export type OrderCourse = {
   id: string;
-  menu: Menu;
+  orderId: string;
+  items: OrderItem[];
 };

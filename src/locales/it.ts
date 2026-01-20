@@ -53,4 +53,9 @@ export const itTranslations = {
     'In questa area appariranno le voci di menu definite in questa categoria.',
   menuItemOptionEmptyList: 'Nessuna variante presente',
   menuItemOptionEmptyListDescription: 'Questa voce di menu non presenta alcuna variante',
+  orderReopen: 'RIAPRI TAVOLO',
+  orderPrintOrder: 'STAMPA ORDINE',
+  orderPrintCourse: 'STAMPA SOLO PORTATA',
+  orderPrintPreBill: 'STAMPA PRE-CONTO',
+  orderClose: 'CHIUDI TAVOLO',
 };
