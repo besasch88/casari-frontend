@@ -35,12 +35,12 @@ export const getOrderActions = (
       {
         icon: IconCashRegister,
         text: t('orderPrintPreBill'),
-        onClick: () => alert('print-pre-bill'),
+        onClick: () => onClick('print-bill'),
       },
       {
         icon: IconRosetteDiscountCheck,
         text: t('orderClose'),
-        onClick: () => alert('close'),
+        onClick: () => onClick('close'),
       },
     ];
   }

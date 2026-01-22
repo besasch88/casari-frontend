@@ -4,6 +4,12 @@ import '@fontsource/inter/500.css';
 import '@fontsource/inter/500-italic.css';
 import '@fontsource/inter/700.css';
 import '@fontsource/inter/700-italic.css';
+import '@fontsource/montserrat';
+import '@fontsource/montserrat/500.css';
+import '@fontsource/montserrat/500-italic.css';
+import '@fontsource/montserrat/700.css';
+import '@fontsource/montserrat/700-italic.css';
+
 import '@mantine/charts/styles.css';
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';

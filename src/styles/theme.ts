@@ -107,10 +107,32 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     },
     Modal: {
       defaultProps: {
-        padding: 'md',
-        size: 'lg',
-        withCloseButton: false,
+        p: 0,
+        withCloseButton: true,
         overlayProps: { backgroundOpacity: 0.3, blur: 4 },
+      },
+    },
+    ModalContent: {
+      defaultProps: {
+        p: 0,
+      },
+    },
+    ModalBody: {
+      defaultProps: {
+        p: 'md',
+      },
+    },
+    ModalHeader: {
+      defaultProps: {
+        p: 'md',
+        h: 80,
+        bg: 'var(--mantine-color-blue-3)',
+      },
+    },
+    ModalTitle: {
+      defaultProps: {
+        fz: 22,
+        fw: 600,
       },
     },
     Alert: {

@@ -2,7 +2,7 @@ import { MenuItem } from '@entities/menuItem';
 import { MenuOption } from '@entities/menuOption';
 import { OrderCourse } from '@entities/orderCourse';
 import { Badge, Button } from '@mantine/core';
-import { IconMinus, IconPlus } from '@tabler/icons-react';
+import { IconChevronDown, IconChevronUp, IconMinus, IconPlus } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
 export interface OrderComponentProps {
@@ -59,6 +59,13 @@ export default function OrderComponent({
     const item = getOrderItemByOption(o);
     if (!item) return 0;
     return item.quantityOrdered;
+  };
+
+  const calculateOptionTitle = (o: MenuOption, i: MenuItem) => {
+    if (o.title !== i.title && o.title.startsWith(i.title)) {
+      return o.title.slice(i.title.length).trim();
+    }
+    return o.title;
   };
 
   useEffect(() => {
@@ -132,6 +139,7 @@ export default function OrderComponent({
             color={'var(--aimm-bg-paper)'}
             bd={'1px solid var(--mantine-color-dark-1)'}
             c="var(--mantine-color-text)"
+            rightSection={isExpanded ? <IconChevronUp /> : <IconChevronDown />}
             fz={15}
             fw={600}
             onClick={() => {
@@ -197,7 +205,7 @@ export default function OrderComponent({
                   fz={15}
                   fw={300}
                 >
-                  {option.title}
+                  {calculateOptionTitle(option, menuItem)}
                   {getOrderItemByOptionQuantity(option) > 0 && (
                     <Badge ml={10} size="lg" color="red" variant="outline" circle>
                       {getOrderItemByOptionQuantity(option)}

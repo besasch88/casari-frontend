@@ -58,4 +58,7 @@ export const itTranslations = {
   orderPrintCourse: 'STAMPA SOLO PORTATA',
   orderPrintPreBill: 'STAMPA PRE-CONTO',
   orderClose: 'CHIUDI TAVOLO',
+  print: 'STAMPA',
+  course: 'PORTATA',
+  total: 'TOTALE',
 };
