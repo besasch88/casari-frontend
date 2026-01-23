@@ -1,5 +1,4 @@
 import { MenuCategory } from '@entities/menuCategory';
-import { GetMenuCategoryOutputDto, ListMenuCategoryOutputDto } from './menuCategoryDto';
 
 export const defaultMenuCategory: MenuCategory = {
   id: '',
@@ -10,14 +9,4 @@ export const defaultMenuCategory: MenuCategory = {
   createdAt: '',
   updatedAt: '',
   items: [],
-};
-
-export const defaultGetMenuCategoryApiResponse: GetMenuCategoryOutputDto = {
-  item: defaultMenuCategory,
-};
-
-export const defaultListMenuCategoryApiResponse: ListMenuCategoryOutputDto = {
-  items: [],
-  totalCount: 0,
-  hasNext: false,
 };

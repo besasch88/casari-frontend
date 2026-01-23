@@ -18,12 +18,7 @@ export default function InternalServerErrorPage() {
           {t('internalServerErrorDescription')}
         </Text>
         <Group justify="center">
-          <Button
-            variant="white"
-            color="grape"
-            size="md"
-            onClick={() => navigate('/', { replace: true })}
-          >
+          <Button variant="white" color="grape" size="md" onClick={() => navigate('/', { replace: true })}>
             {t('internalServerErrorButton')}
           </Button>
         </Group>

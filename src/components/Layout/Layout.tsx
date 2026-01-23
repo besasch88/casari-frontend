@@ -1,13 +1,6 @@
 import { Header } from '@components/Header/Header';
 import { Navbar } from '@components/Navbar/Navbar';
-import {
-  AppShell,
-  AppShellHeader,
-  AppShellMain,
-  AppShellNavbar,
-  Container,
-  Grid,
-} from '@mantine/core';
+import { AppShell, AppShellHeader, AppShellMain, AppShellNavbar, Container, Grid } from '@mantine/core';
 import { useState } from 'react';
 
 export function Layout({ children }: { children: React.ReactNode }) {

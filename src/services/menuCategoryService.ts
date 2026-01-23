@@ -26,9 +26,7 @@ export const menuCategoryService = {
     return data;
   },
 
-  async getMenuCategory(
-    input: GetMenuCategoryInputDto
-  ): Promise<GetMenuCategoryOutputDto> {
+  async getMenuCategory(input: GetMenuCategoryInputDto): Promise<GetMenuCategoryOutputDto> {
     const response = await callAuthApi(`/api/v1/menu/categories/${input.id}`, Method.GET);
     if (!response) {
       throw new Error('menu-category-get-failed');
@@ -41,9 +39,7 @@ export const menuCategoryService = {
     return data;
   },
 
-  async createMenuCategory(
-    input: CreateMenuCategoryInputDto
-  ): Promise<CreateMenuCategoryOutputDto> {
+  async createMenuCategory(input: CreateMenuCategoryInputDto): Promise<CreateMenuCategoryOutputDto> {
     const response = await callAuthApi(`/api/v1/menu/categories`, Method.POST, input);
     if (!response) {
       throw new Error('menu-category-create-failed');
@@ -56,13 +52,8 @@ export const menuCategoryService = {
     return data;
   },
 
-  async deleteMenuCategory(
-    input: DeleteMenuCategoryInputDto
-  ): Promise<DeleteMenuCategoryOutputDto> {
-    const response = await callAuthApi(
-      `/api/v1/menuCategorys/${input.id}`,
-      Method.DELETE
-    );
+  async deleteMenuCategory(input: DeleteMenuCategoryInputDto): Promise<DeleteMenuCategoryOutputDto> {
+    const response = await callAuthApi(`/api/v1/menuCategorys/${input.id}`, Method.DELETE);
     if (!response) {
       throw new Error('menu-category-delete-failed');
     }
@@ -73,9 +64,7 @@ export const menuCategoryService = {
     return { success: true };
   },
 
-  async updateMenuCategory(
-    input: UpdateMenuCategoryInputDto
-  ): Promise<UpdateMenuCategoryOutputDto> {
+  async updateMenuCategory(input: UpdateMenuCategoryInputDto): Promise<UpdateMenuCategoryOutputDto> {
     const { id, ...rest } = input;
     const response = await callAuthApi(`/api/v1/menu/categories/${id}`, Method.PUT, {
       ...rest,

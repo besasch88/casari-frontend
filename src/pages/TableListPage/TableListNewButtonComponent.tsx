@@ -7,20 +7,12 @@ export interface TableListNewButtonComponentProps {
   onClick: () => void;
 }
 
-export function TableListNewButtonComponent({
-  hidden,
-  onClick,
-}: TableListNewButtonComponentProps) {
+export function TableListNewButtonComponent({ hidden, onClick }: TableListNewButtonComponentProps) {
   const { t } = useTranslation();
 
   return (
     <Affix p={'md'} w={'100%'} flex={'width'} position={{ bottom: 0 }} hidden={hidden}>
-      <Button
-        size="lg"
-        fullWidth
-        onClick={onClick}
-        leftSection={<IconCirclePlus size={28} />}
-      >
+      <Button size="lg" fullWidth onClick={onClick} leftSection={<IconCirclePlus size={28} />}>
         {t('tableAddNew')}
       </Button>
     </Affix>

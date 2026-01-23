@@ -24,10 +24,8 @@ export function LoginPageForm() {
       password: '',
     },
     validate: {
-      username: (value: string) =>
-        value.trim().length != 0 ? null : t('fieldIsRequired'),
-      password: (value: string) =>
-        value.trim().length != 0 ? null : t('fieldIsRequired'),
+      username: (value: string) => (value.trim().length != 0 ? null : t('fieldIsRequired')),
+      password: (value: string) => (value.trim().length != 0 ? null : t('fieldIsRequired')),
     },
   });
 
@@ -81,14 +79,7 @@ export function LoginPageForm() {
           key={form.key('password')}
           {...form.getInputProps('password')}
         />
-        <Button
-          size="lg"
-          type="submit"
-          mt={'xl'}
-          loading={apiLoading}
-          loaderProps={{ type: 'dots' }}
-          fullWidth
-        >
+        <Button size="lg" type="submit" mt={'xl'} loading={apiLoading} loaderProps={{ type: 'dots' }} fullWidth>
           {t('loginBtnLogin')}
         </Button>
       </form>

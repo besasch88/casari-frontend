@@ -2,36 +2,32 @@ import { Layout } from '@components/Layout/Layout';
 import { PageTitle } from '@components/PageTitle/PageTitle';
 import { StackList } from '@components/StackList/StackList';
 import { useAuth } from '@context/AuthContext';
-import { defaultGetMenuApiResponse } from '@dtos/defaultMenuDto';
 import { defaultOrderCourse } from '@dtos/defaultOrderCourseDto';
 import { defaultOrder } from '@dtos/defaultOrderDto';
-import { defaultGetTableApiResponse } from '@dtos/defaultTableDto';
-import { GetMenuOutputDto } from '@dtos/MenuDto';
-import { GetTableOutputDto } from '@dtos/tableDto';
+import { Menu } from '@entities/menu';
 import { MenuCategory } from '@entities/menuCategory';
 import { MenuItem } from '@entities/menuItem';
 import { Order } from '@entities/order';
 import { OrderCourse } from '@entities/orderCourse';
+import { Table } from '@entities/table';
 import { AuthGuard } from '@guards/AuthGuard';
 import { Flex, Grid, Group, Loader, Modal, SegmentedControl } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import { menuService } from '@services/menuService';
 import { tableService } from '@services/tableService';
 import { getErrorMessage } from '@utils/errUtils';
-import cloneDeep from 'lodash.clonedeep';
 import debounce from 'lodash.debounce';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { ModalPrintBill } from './ModalPrintBill';
-import { ModalPrintCourse } from './ModalPrintCourse';
 import { ModalPrintOrder } from './ModalPrintOrder';
 import classes from './Order.module.css';
 
+import { getOrderActions } from './OrderActionsData';
 import OrderComponent from './OrderComponent';
 import { OrderCourseNavigationComponent } from './OrderCourseNavigationComponent';
-import { getOrderActions } from './OrderMenuData';
+import { useModals } from './OrderModals';
 
 export default function OrderPage() {
   const { tableId } = useParams();
@@ -42,70 +38,48 @@ export default function OrderPage() {
   const auth = useAuth();
 
   // States
-  const [pageLoaded, setPageLoaded] = useState(false);
-  const [getTableApiResponse, setTableApiResponse] = useState<GetTableOutputDto>(
-    defaultGetTableApiResponse
-  );
-  const [getMenuApiResponse, setMenuApiResponse] = useState<GetMenuOutputDto>(
-    defaultGetMenuApiResponse
-  );
-  const [
-    isReopenTableModalOpen,
-    { open: reopenTableOpenModal, close: reopenTableCloseModal },
-  ] = useDisclosure(false);
-  const [
-    isCloseTableModalOpen,
-    { open: closeTableOpenModal, close: closeTableCloseModal },
-  ] = useDisclosure(false);
-  const [
-    isPrintOrderModalOpen,
-    { open: printOrderOpenModal, close: printOrderCloseModal },
-  ] = useDisclosure(false);
-  const [
-    isPrintCourseModalOpen,
-    { open: printCourseOpenModal, close: printCourseCloseModal },
-  ] = useDisclosure(false);
-  const [isPrintBillModalOpen, { open: printBillOpenModal, close: printBillCloseModal }] =
-    useDisclosure(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>();
-  const [expandedItemId, setExpandedItemId] = useState<string>();
-  const [order, setOrder] = useState<Order>(defaultOrder);
-  const [selectedCourse, setSelectedCourse] = useState<OrderCourse>();
+  const modals = useModals();
+  const [isPageLoaded, setPageLoaded] = useState(false);
+  const [table, setTable] = useState<Table>();
+  const [menu, setMenu] = useState<Menu>();
+  const [order, setOrder] = useState<Order>();
 
-  const orderRef = useRef(order);
+  const [currentCategory, setCurrentCategory] = useState<MenuCategory>();
+  const [categories, setCategories] = useState<MenuCategory[]>([]);
+  const [expandedMenuItem, setExpandedMenuItem] = useState<MenuItem>();
+  const [currentCourse, setCurrentCourse] = useState<OrderCourse>();
 
   // Effects
-  useEffect(() => {
-    orderRef.current = order;
-  }, [order]);
-
   useEffect(() => {
     (async () => {
       try {
         if (!tableId) return;
-        const dataTable = await tableService.getTable({ id: tableId });
-        setTableApiResponse(dataTable);
-        const data = await menuService.getMenu();
+        // Retrieve Table
+        const tableData = await tableService.getTable({ id: tableId });
+        setTable(tableData.item);
+        // Retrieve Menu
+        const menuData = await menuService.getMenu();
+        setMenu(menuData.item);
+        setCategories(menuData.item.categories);
+        setCurrentCategory(menuData.item.categories[0]);
 
-        setMenuApiResponse(data);
-        // @TODO Retrieve Order if available
-        const item = localStorage.getItem(tableId);
-        if (!item) {
-          const newOrder = {
+        // @TODO Retrieve Order
+        const courseData = localStorage.getItem(tableId);
+        let currentOrder: Order;
+        if (!courseData) {
+          currentOrder = {
             ...defaultOrder,
+            id: uuidv4().toString(),
             tableId: tableId,
             userId: auth.getUserId()!,
           };
-          newOrder.courses = [cloneDeep(defaultOrderCourse)];
-          newOrder.courses[0].id = uuidv4().toString();
-          setOrder(newOrder);
-          setSelectedCourse(newOrder.courses[0]);
+          currentOrder.courses = [{ ...defaultOrderCourse }];
+          currentOrder.courses[0].id = uuidv4().toString();
         } else {
-          const newOrder = JSON.parse(item);
-          setOrder(newOrder);
-          setSelectedCourse(newOrder.courses[0]);
+          currentOrder = JSON.parse(courseData);
         }
-        setSelectedCategoryId(data.item.categories[0].id);
+        setOrder(currentOrder);
+        setCurrentCourse(currentOrder.courses[0]);
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {
           case 'refresh-token-failed':
@@ -121,115 +95,113 @@ export default function OrderPage() {
     })();
   }, [navigate, tableId, auth]);
 
-  const debouncedAfterChange = useRef(
-    debounce(() => {
-      localStorage.setItem(tableId!, JSON.stringify(orderRef.current));
-    }, 500)
-  ).current;
+  const debouncedSaveOrder = useMemo(
+    () =>
+      debounce((order: Order) => {
+        if (!tableId) return;
+        if (order == defaultOrder) return;
+        localStorage.setItem(tableId, JSON.stringify(order));
+      }, 500),
+    [tableId]
+  );
 
   useEffect(() => {
-    return () => {
-      debouncedAfterChange.cancel();
-    };
-  }, [debouncedAfterChange]);
-
-  const isTableClose = () => {
-    return getTableApiResponse.item.close;
-  };
+    if (!order) return;
+    debouncedSaveOrder(order);
+  }, [order, debouncedSaveOrder]);
 
   const onMenuActionClick = (code: string) => {
     switch (code) {
       case 'reopen':
-        reopenTableOpenModal();
+        modals.reopenTable.open();
         break;
       case 'print-order':
-        printOrderOpenModal();
+        modals.printOrder.open();
         break;
       case 'print-course':
-        printCourseOpenModal();
+        modals.printCourse.open();
         break;
       case 'print-bill':
-        printBillOpenModal();
+        modals.printBill.open();
         break;
       case 'close':
-        closeTableOpenModal();
+        modals.closeTable.open();
         break;
     }
   };
 
-  const nextCourse = () => {
-    if (!selectedCourse) return;
-    const i = getSelectedCourseIndex();
-    if (isSelectedCourseLast()) {
+  const nextCourse = (o: Order) => {
+    if (!currentCourse) return;
+    const i = getSelectedCourseIndex(o);
+    if (isSelectedCourseLast(o)) {
       const newCourse: OrderCourse = {
         id: uuidv4().toString(),
-        orderId: order.id,
         items: [],
       };
-      order.courses.push(newCourse);
-      setSelectedCourse(newCourse);
-      setOrder({ ...order });
+      o.courses.push(newCourse);
+      setCurrentCourse(newCourse);
+      setOrder(o);
     } else {
-      setSelectedCourse(order.courses[i + 1]);
+      setCurrentCourse(o.courses[i + 1]);
     }
   };
 
-  const previousCourse = () => {
-    if (!selectedCourse) return;
-    const i = getSelectedCourseIndex();
-    if (isSelectedCourseFirst()) {
+  const previousCourse = (o: Order) => {
+    if (!currentCourse) return;
+    const i = getSelectedCourseIndex(o);
+    if (isSelectedCourseFirst(o)) {
       return;
     }
-    setSelectedCourse(order.courses[i - 1]);
+    setCurrentCourse(o.courses[i - 1]);
   };
 
-  const getSelectedCourseIndex = (): number => {
-    return order.courses.findIndex((x) => x.id === selectedCourse?.id);
+  const getSelectedCourseIndex = (o: Order): number => {
+    return o.courses.findIndex((x) => x.id === currentCourse?.id);
   };
 
-  const isSelectedCourseFirst = (): boolean => {
-    return order.courses[0].id === selectedCourse?.id;
+  const isSelectedCourseFirst = (o: Order): boolean => {
+    return o.courses[0].id === currentCourse?.id;
   };
 
-  const isSelectedCourseLast = (): boolean => {
-    return order.courses[order.courses.length - 1].id === selectedCourse?.id;
+  const isSelectedCourseLast = (o: Order): boolean => {
+    return o.courses[o.courses.length - 1].id === currentCourse?.id;
   };
 
-  const getCategories = (): MenuCategory[] => {
-    return getMenuApiResponse.item.categories.filter((x) => x.active);
+  const getCategoryById = (m: Menu, id: string): MenuCategory => {
+    const a = m.categories.find((x) => x.id == id)!;
+    return a;
   };
 
-  const getItems = (categoryId: string): MenuItem[] => {
-    const category = getCategories().find((x) => x.id == categoryId);
+  const getItems = (category: MenuCategory): MenuItem[] => {
     if (!category) return [];
     return category.items.filter((x) => x.active);
   };
 
   const canEdit = () => {
-    if (isTableClose()) {
+    if (!table || table.close) {
       return false;
     }
-    if (auth.getUserId() === getTableApiResponse.item.userId) {
+    if (auth.getUserId() === table.userId) {
       return auth.hasPermissionTo('write-my-tables');
     } else {
       return auth.hasPermissionTo('write-other-tables');
     }
   };
 
-  const isModalOpen = () => {
+  const isAnyModalOpen = () => {
     return (
-      isReopenTableModalOpen ||
-      isPrintOrderModalOpen ||
-      isPrintCourseModalOpen ||
-      isPrintBillModalOpen ||
-      isCloseTableModalOpen
+      modals.reopenTable.isOpen ||
+      modals.closeTable.isOpen ||
+      modals.printOrder.isOpen ||
+      modals.printCourse.isOpen ||
+      modals.printBill.isOpen
     );
   };
 
-  const onAddItemQuantity = (id: string) => {
-    if (!selectedCourse) return;
+  const onAddItemQuantity = (o: Order, id: string) => {
+    if (!currentCourse) return;
     const updatedCourse = {
-      ...selectedCourse,
+      ...currentCourse,
     };
     const index = updatedCourse.items.findIndex((i) => {
       return i.menuItemId == id && i.menuOptionId == null;
@@ -242,47 +214,43 @@ export default function OrderPage() {
     } else {
       updatedCourse.items[index].quantityOrdered++;
     }
-    setSelectedCourse(updatedCourse);
-    const updatedOrder = { ...order };
+    setCurrentCourse(updatedCourse);
+    const updatedOrder = { ...o };
     updatedOrder.courses = updatedOrder.courses.map((c) => {
       return c.id == updatedCourse.id ? updatedCourse : c;
     });
     setOrder(updatedOrder);
-    debouncedAfterChange();
   };
 
-  const onRemoveItemQuantity = (id: string) => {
-    if (!selectedCourse) return;
+  const onRemoveItemQuantity = (o: Order, id: string) => {
+    if (!currentCourse) return;
 
     const updatedCourse = {
-      ...selectedCourse,
-      items: selectedCourse.items.map((item) => {
-        if (
-          item.menuItemId === id &&
-          item.menuOptionId == null &&
-          item.quantityOrdered > 0
-        ) {
-          return {
-            ...item,
-            quantityOrdered: item.quantityOrdered - 1,
-          };
-        }
-        return item;
-      }),
+      ...currentCourse,
+      items: currentCourse.items
+        .map((item) => {
+          if (item.menuItemId === id && item.menuOptionId == null && item.quantityOrdered > 0) {
+            return {
+              ...item,
+              quantityOrdered: item.quantityOrdered - 1,
+            };
+          }
+          return item;
+        })
+        .filter((x) => x.quantityOrdered > 0),
     };
-    setSelectedCourse(updatedCourse);
-    const updatedOrder = { ...order };
+    setCurrentCourse(updatedCourse);
+    const updatedOrder = { ...o };
     updatedOrder.courses = updatedOrder.courses.map((c) => {
       return c.id == updatedCourse.id ? updatedCourse : c;
     });
     setOrder(updatedOrder);
-    debouncedAfterChange();
   };
 
-  const onAddOptionQuantity = (itemId: string, optionId: string) => {
-    if (!selectedCourse) return;
+  const onAddOptionQuantity = (o: Order, itemId: string, optionId: string) => {
+    if (!currentCourse) return;
     const updatedCourse = {
-      ...selectedCourse,
+      ...currentCourse,
     };
     const index = updatedCourse.items.findIndex((i) => {
       return i.menuItemId == itemId && i.menuOptionId == optionId;
@@ -296,48 +264,44 @@ export default function OrderPage() {
     } else {
       updatedCourse.items[index].quantityOrdered++;
     }
-    setSelectedCourse(updatedCourse);
-    const updatedOrder = { ...order };
+    setCurrentCourse(updatedCourse);
+    const updatedOrder = { ...o };
     updatedOrder.courses = updatedOrder.courses.map((c) => {
       return c.id == updatedCourse.id ? updatedCourse : c;
     });
     setOrder(updatedOrder);
-    debouncedAfterChange();
   };
 
-  const onRemoveOptionQuantity = (itemId: string, optionId: string) => {
-    if (!selectedCourse) return;
+  const onRemoveOptionQuantity = (o: Order, itemId: string, optionId: string) => {
+    if (!currentCourse) return;
 
     const updatedCourse = {
-      ...selectedCourse,
-      items: selectedCourse.items.map((item) => {
-        if (
-          item.menuItemId === itemId &&
-          item.menuOptionId == optionId &&
-          item.quantityOrdered > 0
-        ) {
-          return {
-            ...item,
-            quantityOrdered: item.quantityOrdered - 1,
-          };
-        }
-        return item;
-      }),
+      ...currentCourse,
+      items: currentCourse.items
+        .map((item) => {
+          if (item.menuItemId === itemId && item.menuOptionId == optionId && item.quantityOrdered > 0) {
+            return {
+              ...item,
+              quantityOrdered: item.quantityOrdered - 1,
+            };
+          }
+          return item;
+        })
+        .filter((x) => x.quantityOrdered > 0),
     };
-    setSelectedCourse(updatedCourse);
-    const updatedOrder = { ...order };
+    setCurrentCourse(updatedCourse);
+    const updatedOrder = { ...o };
     updatedOrder.courses = updatedOrder.courses.map((c) => {
       return c.id == updatedCourse.id ? updatedCourse : c;
     });
     setOrder(updatedOrder);
-    debouncedAfterChange();
   };
 
   // Content
   return (
     <AuthGuard>
       <Layout>
-        {!pageLoaded && (
+        {!isPageLoaded && (
           <Grid.Col span={12}>
             <Flex wrap="nowrap" w={'100%'} gap={10}>
               <PageTitle title="..." backLink="/tables" />
@@ -347,14 +311,14 @@ export default function OrderPage() {
             </Group>
           </Grid.Col>
         )}
-        {pageLoaded && (
+        {isPageLoaded && table && order && menu && currentCategory && currentCourse && (
           <>
             <Grid.Col span={12}>
               <Flex wrap="nowrap" w={'100%'} gap={10}>
                 <PageTitle
-                  title={getTableApiResponse.item.name}
+                  title={table.name}
                   backLink="/tables"
-                  actions={getOrderActions(t, isTableClose(), (code: string) => {
+                  actions={getOrderActions(t, table.close, (code: string) => {
                     onMenuActionClick(code);
                   })}
                 />
@@ -362,99 +326,99 @@ export default function OrderPage() {
             </Grid.Col>
             <Grid.Col span={12}>
               <SegmentedControl
-                onChange={setSelectedCategoryId}
+                size="lg"
                 fullWidth
-                value={selectedCategoryId}
+                value={currentCategory.id}
                 classNames={{
                   indicator: classes.indicator,
                   root: classes.segmentRoot,
                 }}
-                size="lg"
-                data={getCategories().map((category) => {
-                  return { label: category.title, value: category.id };
+                onChange={(value) => setCurrentCategory(getCategoryById(menu, value))}
+                data={categories.map((c) => {
+                  return {
+                    label: c.title,
+                    value: c.id,
+                  };
                 })}
               />
             </Grid.Col>
             <Grid.Col span={12}>
               <StackList>
-                {selectedCategoryId &&
-                  getItems(selectedCategoryId).map((menuItem, index) => {
-                    return (
-                      <OrderComponent
-                        key={`menu_item_${index}`}
-                        menuItem={menuItem}
-                        orderCourse={selectedCourse!}
-                        expandedItemId={expandedItemId}
-                        onExpanded={setExpandedItemId}
-                        canEdit={canEdit()}
-                        onAddItemQuantity={onAddItemQuantity}
-                        onRemoveItemQuantity={onRemoveItemQuantity}
-                        onAddOptionQuantity={onAddOptionQuantity}
-                        onRemoveOptionQuantity={onRemoveOptionQuantity}
-                      />
-                    );
-                  })}
+                {getItems(currentCategory).map((menuItem, index) => {
+                  return (
+                    <OrderComponent
+                      key={`menu_item_${index}`}
+                      menuItem={menuItem}
+                      orderCourse={currentCourse}
+                      expandedItem={expandedMenuItem}
+                      onExpanded={setExpandedMenuItem}
+                      canEdit={canEdit()}
+                      onAddItemQuantity={(itemId) => onAddItemQuantity(order, itemId)}
+                      onRemoveItemQuantity={(itemId) => onRemoveItemQuantity(order, itemId)}
+                      onAddOptionQuantity={(itemId, optionId) => onAddOptionQuantity(order, itemId, optionId)}
+                      onRemoveOptionQuantity={(itemId, optionId) => onRemoveOptionQuantity(order, itemId, optionId)}
+                    />
+                  );
+                })}
               </StackList>
             </Grid.Col>
-            {!isModalOpen() && (
+            {!isAnyModalOpen() && (
               <OrderCourseNavigationComponent
-                isPreviousVisible={!isSelectedCourseFirst()}
-                onPreviousClick={previousCourse}
-                currentValue={getSelectedCourseIndex() + 1}
-                isNextVisible={!isSelectedCourseLast() || !isTableClose()}
-                onNextClick={nextCourse}
-                isNextNew={isSelectedCourseLast() && !isTableClose()}
+                isPreviousVisible={!isSelectedCourseFirst(order)}
+                onPreviousClick={() => previousCourse(order)}
+                currentValue={getSelectedCourseIndex(order) + 1}
+                isNextVisible={!isSelectedCourseLast(order) || !table.close}
+                onNextClick={() => nextCourse(order)}
+                isNextNew={isSelectedCourseLast(order) && !table.close}
               />
             )}
+            <Modal
+              centered
+              withCloseButton
+              opened={modals.reopenTable.isOpen}
+              onClose={modals.reopenTable.close}
+              title={`${t('tableTable').toUpperCase()} ${table.name}`}
+            >
+              REOPEN
+            </Modal>
+            <Modal
+              centered
+              withCloseButton
+              opened={modals.closeTable.isOpen}
+              onClose={modals.closeTable.close}
+              title={`${t('tableTable').toUpperCase()} ${table.name}`}
+            >
+              CLOSE
+            </Modal>
+            <Modal
+              centered
+              withCloseButton
+              opened={modals.printOrder.isOpen}
+              onClose={modals.printOrder.close}
+              title={`${t('tableTable').toUpperCase()} ${table.name}`}
+            >
+              <ModalPrintOrder menu={menu} order={order} onPrint={() => {}} />
+            </Modal>
+            <Modal
+              centered
+              withCloseButton
+              opened={modals.printCourse.isOpen}
+              onClose={modals.printCourse.close}
+              title={`${t('tableTable').toUpperCase()} ${table.name}`}
+            >
+              <ModalPrintOrder menu={menu} course={currentCourse} order={order} onPrint={() => {}} />
+            </Modal>
+            <Modal
+              centered
+              withCloseButton
+              opened={modals.printBill.isOpen}
+              onClose={modals.printBill.close}
+              title={`${t('tableTable').toUpperCase()} ${table.name}`}
+            >
+              <ModalPrintBill menu={menu} order={order} onPrint={() => {}} />
+            </Modal>
           </>
         )}
-
-        <Modal centered opened={isReopenTableModalOpen} onClose={reopenTableCloseModal}>
-          REOPEN
-        </Modal>
-        <Modal centered opened={isCloseTableModalOpen} onClose={closeTableCloseModal}>
-          CLOSE
-        </Modal>
-        <Modal
-          centered
-          opened={isPrintOrderModalOpen}
-          onClose={printOrderCloseModal}
-          withCloseButton
-          title={`${t('tableTable').toUpperCase()} ${getTableApiResponse.item.name}`}
-        >
-          <ModalPrintOrder
-            menu={getMenuApiResponse.item}
-            order={order}
-            onPrint={() => {}}
-          />
-        </Modal>
-        <Modal
-          centered
-          opened={isPrintCourseModalOpen}
-          onClose={printCourseCloseModal}
-          withCloseButton
-          title={`${t('tableTable').toUpperCase()} ${getTableApiResponse.item.name}`}
-        >
-          <ModalPrintCourse
-            menu={getMenuApiResponse.item}
-            course={selectedCourse!}
-            order={order}
-            onPrint={() => {}}
-          />
-        </Modal>
-        <Modal
-          centered
-          opened={isPrintBillModalOpen}
-          onClose={printBillCloseModal}
-          withCloseButton
-          title={`${t('tableTable').toUpperCase()} ${getTableApiResponse.item.name}`}
-        >
-          <ModalPrintBill
-            menu={getMenuApiResponse.item}
-            order={order}
-            onPrint={() => {}}
-          />
-        </Modal>
       </Layout>
     </AuthGuard>
   );

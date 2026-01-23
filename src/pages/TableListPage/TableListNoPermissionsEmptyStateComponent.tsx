@@ -4,10 +4,6 @@ import { useTranslation } from 'react-i18next';
 export default function TableListNoPermissionsEmptyStateComponent() {
   const { t } = useTranslation();
   return (
-    <EmptyState
-      title={t('tableForbidden')}
-      text={t('tableForbiddenDescription')}
-      imageName="rs-escape"
-    ></EmptyState>
+    <EmptyState title={t('tableForbidden')} text={t('tableForbiddenDescription')} imageName="rs-escape"></EmptyState>
   );
 }

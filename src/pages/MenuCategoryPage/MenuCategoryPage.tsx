@@ -1,8 +1,7 @@
 import { Layout } from '@components/Layout/Layout';
 import { PageTitle } from '@components/PageTitle/PageTitle';
 import { StackList } from '@components/StackList/StackList';
-import { defaultListMenuCategoryApiResponse } from '@dtos/defaultMenuCategoryDto';
-import { ListMenuCategoryOutputDto } from '@dtos/menuCategoryDto';
+import { MenuCategory } from '@entities/menuCategory';
 import { AuthGuard } from '@guards/AuthGuard';
 import { Grid, Group, Loader } from '@mantine/core';
 import { menuCategoryService } from '@services/menuCategoryService';
@@ -20,8 +19,7 @@ export default function MenuCategoryPage() {
 
   // States
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [listMenuCategoryApiResponse, setListMenuCategoryApiResponse] =
-    useState<ListMenuCategoryOutputDto>(defaultListMenuCategoryApiResponse);
+  const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
 
   const onMenuCategoryClick = (id: string) => {
     navigate(`${id}`, { replace: true });
@@ -29,17 +27,13 @@ export default function MenuCategoryPage() {
 
   const onMenuCategorySwitch = async (id: string, active: boolean) => {
     try {
-      const menuCategory = await menuCategoryService.updateMenuCategory({
+      const menuCategoryData = await menuCategoryService.updateMenuCategory({
         id: id,
         active: active,
       });
-      const newListMenuCategoryApiResponse = { ...listMenuCategoryApiResponse };
-      newListMenuCategoryApiResponse.items = newListMenuCategoryApiResponse.items.map(
-        (item) => {
-          return item.id == menuCategory.item.id ? menuCategory.item : item;
-        }
+      setMenuCategories((prev) =>
+        prev.map((item) => (item.id === menuCategoryData.item.id ? menuCategoryData.item : item))
       );
-      setListMenuCategoryApiResponse(newListMenuCategoryApiResponse);
     } catch (err) {
       console.error(err);
     }
@@ -49,8 +43,8 @@ export default function MenuCategoryPage() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await menuCategoryService.listMenuCategories();
-        setListMenuCategoryApiResponse(data);
+        const menuCategoriesData = await menuCategoryService.listMenuCategories();
+        setMenuCategories(menuCategoriesData.items);
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {
           case 'refresh-token-failed':
@@ -84,7 +78,7 @@ export default function MenuCategoryPage() {
             </Grid.Col>
             <Grid.Col span={12}>
               <StackList>
-                {listMenuCategoryApiResponse.items.map((menuCategory) => (
+                {menuCategories.map((menuCategory) => (
                   <MenuCategoryComponent
                     key={`menu_category_${menuCategory.id}`}
                     menuCategory={menuCategory}
@@ -93,9 +87,7 @@ export default function MenuCategoryPage() {
                   />
                 ))}
               </StackList>
-              {listMenuCategoryApiResponse.items.length == 0 && (
-                <MenuCategoryEmptyStateComponent />
-              )}
+              {menuCategories.length == 0 && <MenuCategoryEmptyStateComponent />}
             </Grid.Col>
           </>
         )}

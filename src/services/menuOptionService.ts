@@ -15,10 +15,7 @@ import { callAuthApi } from './authApi';
 
 export const menuOptionService = {
   async listMenuOptions(input: ListMenuOptionInputDto): Promise<ListMenuOptionOutputDto> {
-    const response = await callAuthApi(
-      `/api/v1/menu/items/${input.menuItemId}/options`,
-      Method.GET
-    );
+    const response = await callAuthApi(`/api/v1/menu/items/${input.menuItemId}/options`, Method.GET);
     if (!response) {
       throw new Error('menu-item-option-list-failed');
     }
@@ -43,14 +40,8 @@ export const menuOptionService = {
     return data;
   },
 
-  async createMenuOption(
-    input: CreateMenuOptionInputDto
-  ): Promise<CreateMenuOptionOutputDto> {
-    const response = await callAuthApi(
-      `/api/v1/menu/items/${input.menuItemId}/options`,
-      Method.POST,
-      input
-    );
+  async createMenuOption(input: CreateMenuOptionInputDto): Promise<CreateMenuOptionOutputDto> {
+    const response = await callAuthApi(`/api/v1/menu/items/${input.menuItemId}/options`, Method.POST, input);
     if (!response) {
       throw new Error('menu-item-option-create-failed');
     }
@@ -62,9 +53,7 @@ export const menuOptionService = {
     return data;
   },
 
-  async deleteMenuOption(
-    input: DeleteMenuOptionInputDto
-  ): Promise<DeleteMenuOptionOutputDto> {
+  async deleteMenuOption(input: DeleteMenuOptionInputDto): Promise<DeleteMenuOptionOutputDto> {
     const response = await callAuthApi(`/api/v1/menu/option/${input.id}`, Method.DELETE);
     if (!response) {
       throw new Error('menu-item-option-delete-failed');
@@ -76,9 +65,7 @@ export const menuOptionService = {
     return { success: true };
   },
 
-  async updateMenuOption(
-    input: UpdateMenuOptionInputDto
-  ): Promise<UpdateMenuOptionOutputDto> {
+  async updateMenuOption(input: UpdateMenuOptionInputDto): Promise<UpdateMenuOptionOutputDto> {
     const { id, ...rest } = input;
     const response = await callAuthApi(`/api/v1/menu/options/${id}`, Method.PUT, {
       ...rest,

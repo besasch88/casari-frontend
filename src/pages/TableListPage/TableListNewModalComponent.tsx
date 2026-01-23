@@ -1,9 +1,9 @@
-import { Button, Modal, TextInput, Title } from '@mantine/core';
+import { Button, Modal, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { tableService } from '@services/tableService';
 import { IconCirclePlus, IconLayout2 } from '@tabler/icons-react';
 import { getErrorMessage } from '@utils/errUtils';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,10 +12,7 @@ export interface TableListNewModalComponentProps {
   onClose: () => void;
 }
 
-export function TableListNewModalComponent({
-  isOpen,
-  onClose,
-}: TableListNewModalComponentProps) {
+export function TableListNewModalComponent({ isOpen, onClose }: TableListNewModalComponentProps) {
   // Services
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -33,6 +30,16 @@ export function TableListNewModalComponent({
     },
   });
 
+  const onInputFormChange = (event: ChangeEvent<HTMLInputElement>) => {
+    form.setFieldValue('name', event.currentTarget.value.toUpperCase());
+  };
+
+  const onModalClose = () => {
+    form.reset();
+    onClose();
+  };
+
+  // Handler
   const handleCreateTableSubmit = async (values: typeof form.values) => {
     try {
       setApiLoading(true);
@@ -58,30 +65,19 @@ export function TableListNewModalComponent({
   };
 
   return (
-    <Modal
-      opened={isOpen}
-      onClose={() => {
-        form.reset();
-        onClose();
-      }}
-      centered
-    >
+    <Modal centered withCloseButton title={t('tableAddNew')} opened={isOpen} onClose={onModalClose}>
       <form onSubmit={form.onSubmit(handleCreateTableSubmit)}>
-        <Title order={3} ta={'center'}>
-          {t('tableAddNew')}
-        </Title>
         <TextInput
           size="lg"
           autoFocus
-          leftSection={<IconLayout2 size={22} />}
           withAsterisk
           disabled={apiLoading}
+          leftSection={<IconLayout2 size={22} />}
           placeholder={t('tableInsertTypeName')}
           key={form.key('name')}
           {...form.getInputProps('name')}
-          onChange={(event) =>
-            form.setFieldValue('name', event.currentTarget.value.toUpperCase())
-          }
+          onChange={onInputFormChange}
+          mt={'md'}
           mb="lg"
         />
         <Button

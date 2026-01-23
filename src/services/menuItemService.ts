@@ -15,10 +15,7 @@ import { callAuthApi } from './authApi';
 
 export const menuItemService = {
   async listMenuItems(input: ListMenuItemInputDto): Promise<ListMenuItemOutputDto> {
-    const response = await callAuthApi(
-      `/api/v1/menu/categories/${input.menuCategoryId}/items`,
-      Method.GET
-    );
+    const response = await callAuthApi(`/api/v1/menu/categories/${input.menuCategoryId}/items`, Method.GET);
     if (!response) {
       throw new Error('menu-item-list-failed');
     }
@@ -44,11 +41,7 @@ export const menuItemService = {
   },
 
   async createMenuItem(input: CreateMenuItemInputDto): Promise<CreateMenuItemOutputDto> {
-    const response = await callAuthApi(
-      `/api/v1/menu/categories/${input.menuCategoryId}/items`,
-      Method.POST,
-      input
-    );
+    const response = await callAuthApi(`/api/v1/menu/categories/${input.menuCategoryId}/items`, Method.POST, input);
     if (!response) {
       throw new Error('menu-item-create-failed');
     }

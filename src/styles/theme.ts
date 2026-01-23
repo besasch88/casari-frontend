@@ -15,18 +15,7 @@ export const mantineTheme: MantineThemeOverride = createTheme({
       '#080808',
       '#000000',
     ],
-    red: [
-      '#FFDCE1',
-      '#FFB3B7',
-      '#FF8990',
-      '#FF6068',
-      '#FF3641',
-      '#FF0C1A',
-      '#E6001B',
-      '#CC001C',
-      '#BA0024',
-      '#9A001F',
-    ],
+    red: ['#FFDCE1', '#FFB3B7', '#FF8990', '#FF6068', '#FF3641', '#FF0C1A', '#E6001B', '#CC001C', '#BA0024', '#9A001F'],
   },
   other: {
     darkBackground: '#0d3457ff',
@@ -125,13 +114,13 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     ModalHeader: {
       defaultProps: {
         p: 'md',
-        h: 80,
+        h: 60,
         bg: 'var(--mantine-color-blue-3)',
       },
     },
     ModalTitle: {
       defaultProps: {
-        fz: 22,
+        fz: 20,
         fw: 600,
       },
     },

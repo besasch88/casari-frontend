@@ -1,5 +1,4 @@
 import { MenuItem } from '@entities/menuItem';
-import { GetMenuItemOutputDto, ListMenuItemOutputDto } from './menuItemDto';
 
 export const defaultMenuItem: MenuItem = {
   id: '',
@@ -11,14 +10,4 @@ export const defaultMenuItem: MenuItem = {
   createdAt: '',
   updatedAt: '',
   options: [],
-};
-
-export const defaultGetMenuItemApiResponse: GetMenuItemOutputDto = {
-  item: defaultMenuItem,
-};
-
-export const defaultListMenuItemApiResponse: ListMenuItemOutputDto = {
-  items: [],
-  totalCount: 0,
-  hasNext: false,
 };

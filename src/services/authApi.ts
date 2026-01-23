@@ -3,11 +3,7 @@ import { Method } from './api.type';
 
 let refreshPromise: Promise<void> | null = null;
 
-export const callAuthApi = async (
-  url: string,
-  method: Method,
-  body: Record<string, unknown> | null = null
-) => {
+export const callAuthApi = async (url: string, method: Method, body: Record<string, unknown> | null = null) => {
   let response;
   const accessToken = localStorage.getItem('accessToken');
   const refreshToken = localStorage.getItem('refreshToken');

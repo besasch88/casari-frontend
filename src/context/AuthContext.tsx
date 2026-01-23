@@ -27,12 +27,7 @@ type AuthContextType = {
   getAccessToken: () => string | null;
   getRefreshToken: () => string | null;
   getPermissions: () => string[];
-  login: (
-    userId: string,
-    username: string,
-    accessToken: string,
-    refreshToken: string
-  ) => void;
+  login: (userId: string, username: string, accessToken: string, refreshToken: string) => void;
   refresh: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
   hasPermissionTo: (permission: Permission) => boolean;
@@ -67,12 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return decoded.permissions;
   };
 
-  const login = (
-    userId: string,
-    username: string,
-    accessToken: string,
-    refreshToken: string
-  ) => {
+  const login = (userId: string, username: string, accessToken: string, refreshToken: string) => {
     localStorage.setItem('userId', userId);
     localStorage.setItem('username', username);
     localStorage.setItem('accessToken', accessToken);

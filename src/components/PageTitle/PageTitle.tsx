@@ -45,23 +45,14 @@ export function PageTitle({ title, backLink, actions }: PageTitleProps) {
           transitionProps={{ transition: 'rotate-right', duration: 150 }}
         >
           <Menu.Target>
-            <ActionIcon
-              variant="outline"
-              aria-label="Actions"
-              size={50}
-              color="var(--mantine-color-blue-3)"
-            >
+            <ActionIcon variant="outline" aria-label="Actions" size={50} color="var(--mantine-color-blue-3)">
               <IconDots stroke={1.5} />
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
             {actions.map((action, index) => (
               <div key={`title_menu_item_${index}`}>
-                <Menu.Item
-                  onClick={action.onClick}
-                  leftSection={<action.icon size={30} />}
-                  my={10}
-                >
+                <Menu.Item onClick={action.onClick} leftSection={<action.icon size={30} />} my={10}>
                   <Text size="lg">{action.text}</Text>
                 </Menu.Item>
                 {index + 1 < actions.length && <Menu.Divider />}

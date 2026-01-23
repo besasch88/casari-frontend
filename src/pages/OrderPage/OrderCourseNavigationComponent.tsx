@@ -29,7 +29,7 @@ export function OrderCourseNavigationComponent({
     >
       <Group justify="space-between" grow w={'100%'}>
         <Button
-          size="lg"
+          size="md"
           style={{
             visibility: !isPreviousVisible ? 'hidden' : undefined,
             pointerEvents: !isPreviousVisible ? 'none' : undefined,
@@ -40,11 +40,11 @@ export function OrderCourseNavigationComponent({
         >
           {<IconArrowLeft size={28} />}
         </Button>
-        <Button size="lg" fullWidth style={{ pointerEvents: 'none' }}>
+        <Button size="md" fullWidth style={{ pointerEvents: 'none' }}>
           {currentValue}
         </Button>
         <Button
-          size="lg"
+          size="md"
           fullWidth
           style={{
             visibility: !isNextVisible ? 'hidden' : undefined,

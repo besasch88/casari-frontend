@@ -6,6 +6,5 @@ export type OrderItem = {
 
 export type OrderCourse = {
   id: string;
-  orderId: string;
   items: OrderItem[];
 };

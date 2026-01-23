@@ -7,12 +7,7 @@ export interface sendNotificationProps {
   message: ReactNode;
   icon?: ReactNode;
 }
-export const sendErrorNotification = ({
-  id,
-  title,
-  message,
-  icon,
-}: sendNotificationProps) => {
+export const sendErrorNotification = ({ id, title, message, icon }: sendNotificationProps) => {
   notifications.show({
     id: id,
     icon: icon,
@@ -27,12 +22,7 @@ export const sendErrorNotification = ({
   });
 };
 
-export const sendSuccessNotification = ({
-  id,
-  title,
-  message,
-  icon,
-}: sendNotificationProps) => {
+export const sendSuccessNotification = ({ id, title, message, icon }: sendNotificationProps) => {
   notifications.show({
     id: id,
     icon: icon,

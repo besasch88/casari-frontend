@@ -1,12 +1,6 @@
 import { useAuth } from '@context/AuthContext';
 import { Paper, ScrollArea } from '@mantine/core';
-import {
-  IconChartHistogram,
-  IconColumns,
-  IconDoorExit,
-  IconLayout2,
-  IconPrinter,
-} from '@tabler/icons-react';
+import { IconChartHistogram, IconColumns, IconDoorExit, IconLayout2, IconPrinter } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import classes from './Navbar.module.css';
@@ -22,10 +16,7 @@ export function Navbar() {
 
   useEffect(() => {
     const items = [];
-    if (
-      auth.getPermissions().includes('read-my-tables') ||
-      auth.getPermissions().includes('read-other-tables')
-    ) {
+    if (auth.getPermissions().includes('read-my-tables') || auth.getPermissions().includes('read-other-tables')) {
       items.push({
         label: t('menuTables'),
         icon: IconLayout2,
@@ -58,12 +49,8 @@ export function Navbar() {
   }, [auth, t]);
 
   // Content
-  const menuComponents = menuItems.map((item) => (
-    <NavbarItem {...item} key={item.label} />
-  ));
-  const footerMenuComponents = footerMenuItems.map((item) => (
-    <NavbarItem {...item} key={item.label} />
-  ));
+  const menuComponents = menuItems.map((item) => <NavbarItem {...item} key={item.label} />);
+  const footerMenuComponents = footerMenuItems.map((item) => <NavbarItem {...item} key={item.label} />);
 
   return (
     <Paper className={classes.navbarBox} bg={''} p={'xs'}>

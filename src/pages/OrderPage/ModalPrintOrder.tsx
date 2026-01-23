@@ -3,44 +3,49 @@ import { MenuItem } from '@entities/menuItem';
 import { MenuOption } from '@entities/menuOption';
 import { Order } from '@entities/order';
 import { OrderCourse, OrderItem } from '@entities/orderCourse';
-import { Box, Button, Divider, Group, Text } from '@mantine/core';
+import { Box, Button, Center, Divider, Group, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 
 export interface ModalPrintOrderProps {
   menu: Menu;
   order: Order;
+  course?: OrderCourse;
   onPrint: () => void;
 }
-export function ModalPrintOrder({ menu, order, onPrint }: ModalPrintOrderProps) {
+export function ModalPrintOrder({ menu, order, course, onPrint }: ModalPrintOrderProps) {
+  // Services
   const { t } = useTranslation();
 
-  const findMenuItem = (menu: Menu, menuItemId: string): MenuItem | null => {
-    let item: MenuItem | null = null;
-    menu.categories.forEach((x) => {
-      x.items.forEach((y) => {
-        if (y.id === menuItemId) {
-          item = y;
-        }
-      });
+  // Utilities
+  const findCourseItem = (course: OrderCourse, menuItemId: string): OrderItem[] => {
+    const o: OrderItem[] = [];
+    course.items.forEach((i) => {
+      if (i.menuItemId == menuItemId && i.menuOptionId == null) {
+        o.push(i);
+      }
     });
-    return item;
+    return o;
   };
-  const findMenuOption = (menu: Menu, menuOptionId: string): MenuOption | null => {
-    let item: MenuOption | null = null;
-    menu.categories.forEach((x) => {
-      x.items.forEach((y) => {
-        y.options.forEach((z) => {
-          if (z.id === menuOptionId) {
-            item = z;
-          }
-        });
-      });
+
+  const findCourseOption = (course: OrderCourse, menuOptionId: string): OrderItem[] => {
+    const o: OrderItem[] = [];
+    course.items.forEach((i) => {
+      if (i.menuOptionId == menuOptionId) {
+        o.push(i);
+      }
     });
-    return item;
+    return o;
   };
-  const printItem = (item: OrderItem, menu: Menu) => {
+
+  const getNumberOfElements = (): number => {
+    if (course) return course.items.length;
+    return order.courses.reduce((tot, c) => tot + c.items.length, 0);
+  };
+
+  // Content
+  const printItem = (menuItem: MenuItem | MenuOption, quantity: number) => {
     return (
-      <Box key={`course_item_${item.menuItemId}_${item.menuOptionId || '0'}`}>
+      <Box key={`course_item_${menuItem.id}`}>
         <Group wrap="nowrap" w={'100%'} mb={6} justify="space-between">
           <Text
             size="lg"
@@ -49,34 +54,76 @@ export function ModalPrintOrder({ menu, order, onPrint }: ModalPrintOrderProps) 
               textIndent: '-1.7rem',
             }}
           >
-            <b>{item.quantityOrdered}</b>
+            <b>{quantity}</b>
             {' x '}
-            {item.menuOptionId && findMenuOption(menu, item.menuOptionId)?.title}
-            {!item.menuOptionId && findMenuItem(menu, item.menuItemId)?.title}
+            {menuItem.title}
           </Text>
         </Group>
       </Box>
     );
   };
-  const printCourse = (course: OrderCourse, index: number, menu: Menu) => {
+
+  const printMenu = (menu: Menu, course: OrderCourse) => {
+    return menu.categories.map((c) => {
+      return c.items.map((i) => {
+        if (i.options.length == 0) {
+          const x = findCourseItem(course, i.id);
+          const tot = x.reduce((tot, a) => {
+            return tot + a.quantityOrdered;
+          }, 0);
+          if (tot > 0) {
+            return printItem(i, tot);
+          }
+        } else {
+          return i.options.map((o) => {
+            const x = findCourseOption(course, o.id);
+            const tot = x.reduce((tot, a) => {
+              return tot + a.quantityOrdered;
+            }, 0);
+            if (tot > 0) {
+              return printItem(o, tot);
+            }
+          });
+        }
+      });
+    });
+  };
+
+  const printCourse = (c: OrderCourse, index: number, menu: Menu) => {
+    // Hide empty courses
+    if (c.items.length == 0) return <div key={`empty_course_${c.id}`}></div>;
     return (
-      <Box key={`course_${course.id}`} mt={10} mb={40}>
+      <Box key={`course_${c.id}`} mt={10} mb={40}>
         <Text fw={700} size="xl">
           {t('course')} {index}
         </Text>
         <Divider mb={15} />
-        {course.items.map((item) => printItem(item, menu))}
+        {printMenu(menu, c)}
       </Box>
     );
   };
 
   return (
     <Box style={{ fontFamily: 'Montserrat' }}>
-      {order.courses.map((course, index) => printCourse(course, index + 1, menu))}
-
-      <Button size="xl" fullWidth onClick={onPrint}>
-        {t('print')}
-      </Button>
+      {order.courses.map((c, index) => {
+        if (course && course.id == c.id) {
+          return printCourse(c, index + 1, menu);
+        } else if (!course) {
+          return printCourse(c, index + 1, menu);
+        }
+      })}
+      {getNumberOfElements() == 0 && (
+        <Center p={30}>
+          <Text fz={18} fs={'italic'} ta={'center'}>
+            {t('noItemsToPrint')}
+          </Text>
+        </Center>
+      )}
+      {getNumberOfElements() > 0 && (
+        <Button size="lg" fullWidth onClick={onPrint}>
+          {t('print')}
+        </Button>
+      )}
     </Box>
   );
 }

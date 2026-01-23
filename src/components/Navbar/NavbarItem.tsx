@@ -26,17 +26,10 @@ export function NavbarItem({ icon: Icon, label, link }: NavbarItemProps) {
   };
   return (
     <>
-      <UnstyledButton
-        onClick={onClickHandler}
-        className={`${classes.control} ${selected ? classes.active : ''}`}
-      >
+      <UnstyledButton onClick={onClickHandler} className={`${classes.control} ${selected ? classes.active : ''}`}>
         <Group justify="space-between" gap={0}>
           <Box style={{ display: 'flex', alignItems: 'center' }}>
-            <ThemeIcon
-              variant="filled"
-              bd="1px solid var(--mantine-color-brand-4)"
-              size={40}
-            >
+            <ThemeIcon variant="filled" bd="1px solid var(--mantine-color-brand-4)" size={40}>
               <Icon size={25} />
             </ThemeIcon>
             <Box ml="md">{label}</Box>

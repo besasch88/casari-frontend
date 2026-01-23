@@ -8,32 +8,21 @@ export interface TableListComponentProps {
 }
 
 export default function TableListComponent({ table, onClick }: TableListComponentProps) {
-  if (table.close) {
-    return (
-      <Button
-        onClick={() => onClick(table.id)}
-        fullWidth
-        size="lg"
-        variant="filled"
-        color="var(--aimm-bg-paper)"
-        leftSection={<IconCircleCheck size={22} color="green" />}
-        bd={'1px solid var(--mantine-color-dark-1)'}
-        c="var(--mantine-color-text)"
-      >
-        {table.name.toUpperCase()}
-      </Button>
-    );
-  } else {
-    return (
-      <Button
-        fullWidth
-        size="lg"
-        leftSection={<IconProgress size={22} color="orange" />}
-        variant="default"
-        onClick={() => onClick(table.id)}
-      >
-        {table.name.toUpperCase()}
-      </Button>
-    );
-  }
+  const progressIcon = () => <IconProgress size={22} color="orange" />;
+  const completedIcon = () => <IconCircleCheck size={22} color="green" />;
+
+  return (
+    <Button
+      onClick={() => onClick(table.id)}
+      fullWidth
+      size="lg"
+      c={'var(--mantine-color-text)'}
+      bd={'1px solid var(--mantine-color-dark-1)'}
+      bg={table.close ? 'var(--aimm-bg-paper)' : 'var(--mantine-color-white)'}
+      leftSection={table.close ? completedIcon() : progressIcon()}
+      variant={table.close ? 'filled' : 'default'}
+    >
+      {table.name.toUpperCase()}
+    </Button>
+  );
 }

@@ -9,12 +9,12 @@ export interface OrderComponentProps {
   menuItem: MenuItem;
   orderCourse: OrderCourse;
   canEdit: boolean;
-  expandedItemId?: string;
+  expandedItem?: MenuItem;
   onAddItemQuantity: (itemId: string) => void;
   onAddOptionQuantity: (itemId: string, optionId: string) => void;
   onRemoveItemQuantity: (itemId: string) => void;
   onRemoveOptionQuantity: (itemId: string, optionId: string) => void;
-  onExpanded: (id: string) => void;
+  onExpanded: (menuItem: MenuItem) => void;
 }
 
 export default function OrderComponent({
@@ -26,7 +26,7 @@ export default function OrderComponent({
   onRemoveItemQuantity,
   onRemoveOptionQuantity,
   onExpanded,
-  expandedItemId,
+  expandedItem,
 }: OrderComponentProps) {
   const hasOptions = () => {
     return menuItem.options.length > 0;
@@ -69,10 +69,10 @@ export default function OrderComponent({
   };
 
   useEffect(() => {
-    if (expandedItemId !== menuItem.id) {
+    if (expandedItem?.id !== menuItem.id) {
       setExpanded(false);
     }
-  }, [expandedItemId, menuItem.id]);
+  }, [expandedItem, menuItem.id]);
 
   const [isExpanded, setExpanded] = useState(false);
 
@@ -144,7 +144,7 @@ export default function OrderComponent({
             fw={600}
             onClick={() => {
               if (canEdit) {
-                if (!isExpanded) onExpanded(menuItem.id);
+                if (!isExpanded) onExpanded(menuItem);
                 setExpanded(!isExpanded);
               }
             }}

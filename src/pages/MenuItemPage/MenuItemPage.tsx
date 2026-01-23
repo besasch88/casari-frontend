@@ -2,10 +2,8 @@ import { Layout } from '@components/Layout/Layout';
 
 import { PageTitle } from '@components/PageTitle/PageTitle';
 import { StackList } from '@components/StackList/StackList';
-import { defaultGetMenuCategoryApiResponse } from '@dtos/defaultMenuCategoryDto';
-import { defaultListMenuItemApiResponse } from '@dtos/defaultMenuItemDto';
-import { GetMenuCategoryOutputDto } from '@dtos/menuCategoryDto';
-import { ListMenuItemOutputDto } from '@dtos/menuItemDto';
+import { MenuCategory } from '@entities/menuCategory';
+import { MenuItem } from '@entities/menuItem';
 import { AuthGuard } from '@guards/AuthGuard';
 import { Grid, Group, Loader } from '@mantine/core';
 import { menuCategoryService } from '@services/menuCategoryService';
@@ -23,10 +21,8 @@ export default function MenuItemPage() {
 
   // States
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [getMenuCategoryApiResponse, setMenuCategoryApiResponse] =
-    useState<GetMenuCategoryOutputDto>(defaultGetMenuCategoryApiResponse);
-  const [listMenuItemApiResponse, setListMenuItemApiResponse] =
-    useState<ListMenuItemOutputDto>(defaultListMenuItemApiResponse);
+  const [menuCategory, setMenuCategory] = useState<MenuCategory>();
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
   const onMenuItemClick = (id: string) => {
     navigate(`/menu/items/${id}`, { replace: true });
@@ -34,15 +30,11 @@ export default function MenuItemPage() {
 
   const onMenuItemSwitch = async (id: string, active: boolean) => {
     try {
-      const menuItem = await menuItemService.updateMenuItem({
+      const menuItemData = await menuItemService.updateMenuItem({
         id: id,
         active: active,
       });
-      const newListMenuItemApiResponse = { ...listMenuItemApiResponse };
-      newListMenuItemApiResponse.items = newListMenuItemApiResponse.items.map((item) => {
-        return item.id == menuItem.item.id ? menuItem.item : item;
-      });
-      setListMenuItemApiResponse(newListMenuItemApiResponse);
+      setMenuItems((prev) => prev.map((item) => (item.id === menuItemData.item.id ? menuItemData.item : item)));
     } catch (err) {
       console.error(err);
     }
@@ -55,11 +47,11 @@ export default function MenuItemPage() {
         const categoryData = await menuCategoryService.getMenuCategory({
           id: menuCategoryId!,
         });
-        setMenuCategoryApiResponse(categoryData);
-        const data = await menuItemService.listMenuItems({
+        setMenuCategory(categoryData.item);
+        const menuItemsData = await menuItemService.listMenuItems({
           menuCategoryId: menuCategoryId!,
         });
-        setListMenuItemApiResponse(data);
+        setMenuItems(menuItemsData.items);
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {
           case 'refresh-token-failed':
@@ -86,17 +78,14 @@ export default function MenuItemPage() {
             </Group>
           </Grid.Col>
         )}
-        {pageLoaded && (
+        {pageLoaded && menuCategory && (
           <>
             <Grid.Col span={12}>
-              <PageTitle
-                title={getMenuCategoryApiResponse.item.title}
-                backLink={'/menu/categories'}
-              />
+              <PageTitle title={menuCategory.title} backLink={'/menu/categories'} />
             </Grid.Col>
             <Grid.Col span={12}>
               <StackList>
-                {listMenuItemApiResponse.items.map((menuItem) => (
+                {menuItems.map((menuItem) => (
                   <MenuItemComponent
                     key={`menu_item_${menuItem.id}`}
                     menuItem={menuItem}
@@ -105,9 +94,7 @@ export default function MenuItemPage() {
                   />
                 ))}
               </StackList>
-              {listMenuItemApiResponse.items.length == 0 && (
-                <MenuItemEmptyStateComponent />
-              )}
+              {menuItems.length == 0 && <MenuItemEmptyStateComponent />}
             </Grid.Col>
           </>
         )}

@@ -9,18 +9,15 @@ export interface MenuItemComponentProps {
   onSwitch: (id: string, value: boolean) => void;
 }
 
-export default function MenuItemComponent({
-  menuItem,
-  onClick,
-  onSwitch,
-}: MenuItemComponentProps) {
+export default function MenuItemComponent({ menuItem, onClick, onSwitch }: MenuItemComponentProps) {
   // Services
   const auth = useAuth();
 
   // Utilities
-  const canEdit = () => {
-    return auth.hasPermissionTo('write-menu');
-  };
+  const canEdit = () => auth.hasPermissionTo('write-menu');
+  const getPrice = (i: MenuItem) => (i.price / 100).toFixed(2);
+
+  // Content
   return (
     <Group wrap="nowrap">
       <Button
@@ -42,16 +39,9 @@ export default function MenuItemComponent({
         fz={15}
         fw={300}
       >
-        {menuItem.price > 0
-          ? `${menuItem.title} (${(menuItem.price / 100).toFixed(2)}€)`
-          : menuItem.title}
+        {menuItem.price > 0 ? `${menuItem.title} (${getPrice(menuItem)}€)` : menuItem.title}
       </Button>
-      <SwitchOnOff
-        canEdit={canEdit()}
-        id={menuItem.id}
-        checked={menuItem.active}
-        onChange={onSwitch}
-      />
+      <SwitchOnOff canEdit={canEdit()} id={menuItem.id} checked={menuItem.active} onChange={onSwitch} />
     </Group>
   );
 }

@@ -22,6 +22,7 @@ import MenuOptionPage from '@pages/MenuOptionPage/MenuOptionPage';
 import OrderPage from '@pages/OrderPage/OrderPage';
 import TableListPage from '@pages/TableListPage/TableListPage';
 import { cssVariablesResolver, mantineTheme } from '@styles/theme';
+import { ScrollToTop } from '@utils/ScrollToTop';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import InternalServerErrorPage from './pages/InternalServerErrorPage/InternalServerErrorPage';
@@ -32,14 +33,11 @@ import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
 export function App() {
   return (
     <DirectionProvider>
-      <MantineProvider
-        theme={mantineTheme}
-        cssVariablesResolver={cssVariablesResolver}
-        defaultColorScheme="light"
-      >
+      <MantineProvider theme={mantineTheme} cssVariablesResolver={cssVariablesResolver} defaultColorScheme="light">
         <Notifications />
         <AuthProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
               {/* Protected main page */}
               <Route path="/" element={<Navigate to="/tables" replace />} />
@@ -52,10 +50,7 @@ export function App() {
 
               {/* Public login page */}
               <Route path="/login" element={<LoginPage />} />
-              <Route
-                path="/internal-server-error"
-                element={<InternalServerErrorPage />}
-              />
+              <Route path="/internal-server-error" element={<InternalServerErrorPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </BrowserRouter>

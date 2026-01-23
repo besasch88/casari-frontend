@@ -1,10 +1,8 @@
 import { Layout } from '@components/Layout/Layout';
 import { PageTitle } from '@components/PageTitle/PageTitle';
 import { StackList } from '@components/StackList/StackList';
-import { defaultGetMenuItemApiResponse } from '@dtos/defaultMenuItemDto';
-import { defaultListMenuOptionApiResponse } from '@dtos/defaultMenuOptionDto';
-import { GetMenuItemOutputDto } from '@dtos/menuItemDto';
-import { ListMenuOptionOutputDto } from '@dtos/menuOptionDto';
+import { MenuItem } from '@entities/menuItem';
+import { MenuOption } from '@entities/menuOption';
 import { AuthGuard } from '@guards/AuthGuard';
 import { Grid, Group, Loader } from '@mantine/core';
 import { menuItemService } from '@services/menuItemService';
@@ -22,27 +20,18 @@ export default function MenuOptionPage() {
 
   // States
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [, setApiLoading] = useState(false);
-  const [getMenuItemApiResponse, setMenuItemApiResponse] = useState<GetMenuItemOutputDto>(
-    defaultGetMenuItemApiResponse
-  );
-  const [listMenuOptionApiResponse, setListMenuOptionApiResponse] =
-    useState<ListMenuOptionOutputDto>(defaultListMenuOptionApiResponse);
+  const [menuItem, setMenuItem] = useState<MenuItem>();
+  const [menuOptions, setMenuOptions] = useState<MenuOption[]>([]);
 
   const onMenuOptionItemSwitch = async (id: string, active: boolean) => {
     try {
-      setApiLoading(true);
-      const menuOption = await menuOptionService.updateMenuOption({
+      const menuOptionData = await menuOptionService.updateMenuOption({
         id: id,
         active: active,
       });
-      listMenuOptionApiResponse.items = listMenuOptionApiResponse.items.map((item) => {
-        return item.id == menuOption.item.id ? menuOption.item : item;
-      });
+      setMenuOptions((prev) => prev.map((item) => (item.id === menuOptionData.item.id ? menuOptionData.item : item)));
     } catch (err) {
       console.error(err);
-    } finally {
-      setApiLoading(false);
     }
   };
 
@@ -50,15 +39,14 @@ export default function MenuOptionPage() {
   useEffect(() => {
     (async () => {
       try {
-        setApiLoading(true);
         const itemData = await menuItemService.getMenuItem({
           id: menuItemId!,
         });
-        const data = await menuOptionService.listMenuOptions({
+        setMenuItem(itemData.item);
+        const menuOptionsData = await menuOptionService.listMenuOptions({
           menuItemId: menuItemId!,
         });
-        setMenuItemApiResponse(itemData);
-        setListMenuOptionApiResponse(data);
+        setMenuOptions(menuOptionsData.items);
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {
           case 'refresh-token-failed':
@@ -69,7 +57,6 @@ export default function MenuOptionPage() {
             break;
         }
       } finally {
-        setApiLoading(false);
         setPageLoaded(true);
       }
     })();
@@ -86,28 +73,24 @@ export default function MenuOptionPage() {
             </Group>
           </Grid.Col>
         )}
-        {pageLoaded && (
+        {pageLoaded && menuItem && (
           <>
             <Grid.Col span={12}>
-              <PageTitle
-                title={getMenuItemApiResponse.item.title}
-                backLink={`/menu/categories/${getMenuItemApiResponse.item.menuCategoryId}`}
-              />
+              <PageTitle title={menuItem.title} backLink={`/menu/categories/${menuItem.menuCategoryId}`} />
             </Grid.Col>
             <Grid.Col span={12}>
               <StackList>
-                {listMenuOptionApiResponse.items.map((menuOption) => (
+                {menuOptions.map((menuOption) => (
                   <MenuOptionComponent
                     key={`menu_item_el_${menuOption.id}`}
+                    menuItem={menuItem}
                     menuOption={menuOption}
                     onClick={() => {}}
                     onSwitch={onMenuOptionItemSwitch}
                   />
                 ))}
               </StackList>
-              {listMenuOptionApiResponse.items.length == 0 && (
-                <MenuOptionEmptyStateComponent />
-              )}
+              {menuOptions.length == 0 && <MenuOptionEmptyStateComponent />}
             </Grid.Col>
           </>
         )}

@@ -7,11 +7,7 @@ import {
 } from '@tabler/icons-react';
 import { TFunction } from 'i18next';
 
-export const getOrderActions = (
-  t: TFunction,
-  isClose: boolean,
-  onClick: (code: string) => void
-) => {
+export const getOrderActions = (t: TFunction, isClose: boolean, onClick: (code: string) => void) => {
   if (isClose) {
     return [
       {

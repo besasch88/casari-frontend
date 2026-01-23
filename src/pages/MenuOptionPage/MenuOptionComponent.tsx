@@ -1,32 +1,31 @@
+import SwitchOnOff from '@components/SwitchOnOff/SwitchOnOff';
 import { useAuth } from '@context/AuthContext';
+import { MenuItem } from '@entities/menuItem';
 import { MenuOption } from '@entities/menuOption';
-import { Button, Group, Switch } from '@mantine/core';
-import { IconCheck, IconX } from '@tabler/icons-react';
+import { Button, Group } from '@mantine/core';
 
 export interface MenuOptionComponentProps {
+  menuItem: MenuItem;
   menuOption: MenuOption;
   onClick: (id: string) => void;
   onSwitch: (id: string, value: boolean) => void;
 }
 
-export default function MenuOptionComponent({
-  menuOption: menuOption,
-  onClick,
-  onSwitch,
-}: MenuOptionComponentProps) {
+export default function MenuOptionComponent({ menuItem, menuOption, onClick, onSwitch }: MenuOptionComponentProps) {
   // Services
   const auth = useAuth();
 
-  // Methods
-  const onSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onSwitch(menuOption.id, event.currentTarget.checked);
+  // Utilities
+  const canEdit = () => auth.hasPermissionTo('write-menu');
+  const getPrice = (i: MenuOption) => (i.price / 100).toFixed(2);
+  const calculateOptionTitle = (o: MenuOption, i: MenuItem) => {
+    if (o.title !== i.title && o.title.startsWith(i.title)) {
+      return o.title.slice(i.title.length).trim();
+    }
+    return o.title;
   };
 
-  const canEdit = () => {
-    return auth.hasPermissionTo('write-menu');
-  };
-  // {`${menuItemOption.title} (${(menuItemOption.price / 100).toFixed(2)} €)`}
-  // Services
+  // Content
   return (
     <Group wrap="nowrap" key={`item_${menuOption.id}`}>
       <Button
@@ -44,27 +43,9 @@ export default function MenuOptionComponent({
         fz={15}
         fw={300}
       >
-        {`${menuOption.title} (${(menuOption.price / 100).toFixed(2)}€)`}
+        {`${calculateOptionTitle(menuOption, menuItem)} (${getPrice(menuOption)}€)`}
       </Button>
-      <Switch
-        checked={menuOption.active}
-        size="lg"
-        onLabel="ON"
-        offLabel="OFF"
-        onChange={(event) => {
-          if (canEdit()) {
-            onSwitchChange(event);
-          }
-        }}
-        color="teal"
-        thumbIcon={
-          menuOption.active ? (
-            <IconCheck size={12} color="var(--mantine-color-teal-6)" stroke={3} />
-          ) : (
-            <IconX size={12} color="var(--mantine-color-red-6)" stroke={3} />
-          )
-        }
-      ></Switch>
+      <SwitchOnOff canEdit={canEdit()} id={menuOption.id} checked={menuOption.active} onChange={onSwitch} />
     </Group>
   );
 }

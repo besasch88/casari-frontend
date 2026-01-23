@@ -23,16 +23,12 @@ export const itTranslations = {
   tableMyTableMenu: 'I MIEI TAVOLI',
   tableOtherTableMenu: 'ALTRI TAVOLI',
   tableForbidden: 'Area Riservata',
-  tableForbiddenDescription:
-    'Ops! Sembra che tu non abbia l’autorizzazione per accedere a questa sezione.',
+  tableForbiddenDescription: 'Ops! Sembra che tu non abbia l’autorizzazione per accedere a questa sezione.',
   tableEmptyList: 'Nessun tavolo presente',
-  tableEmptyListDescription:
-    'In questa area appariranno solo i tavoli da te creati durante il servizio.',
-  tableEmptyListInstruction:
-    'Per iniziare premi sul pulsante sottostante per aggiungere il tuo primo tavolo.',
+  tableEmptyListDescription: 'In questa area appariranno solo i tavoli da te creati durante il servizio.',
+  tableEmptyListInstruction: 'Per iniziare premi sul pulsante sottostante per aggiungere il tuo primo tavolo.',
   tableOtherEmptyList: 'Nessun tavolo presente',
-  tableOtherEmptyListDescription:
-    'In questa area appariranno i tavoli creati dai tuoi colleghi durante il servizio.',
+  tableOtherEmptyListDescription: 'In questa area appariranno i tavoli creati dai tuoi colleghi durante il servizio.',
   tableTable: 'Tavolo',
   tableAddNew: 'AGGIUNGI UN TAVOLO',
   tableAdd: 'AGGIUNGI',
@@ -46,19 +42,18 @@ export const itTranslations = {
   menuCategoryInsertTypeName: 'Inserisci nome della Categoria',
   menuCategoryTitleAlreadyInUse: 'Categoria già presente',
   menuCategoryEmptyList: 'Nessuna categoria presente',
-  menuCategoryEmptyListDescription:
-    'In questa area appariranno le categorie dei menu appena create.',
+  menuCategoryEmptyListDescription: 'In questa area appariranno le categorie dei menu appena create.',
   menuItemEmptyList: 'Nessuna Voce di Menu presente',
-  menuItemEmptyListDescription:
-    'In questa area appariranno le voci di menu definite in questa categoria.',
+  menuItemEmptyListDescription: 'In questa area appariranno le voci di menu definite in questa categoria.',
   menuItemOptionEmptyList: 'Nessuna variante presente',
   menuItemOptionEmptyListDescription: 'Questa voce di menu non presenta alcuna variante',
   orderReopen: 'RIAPRI TAVOLO',
-  orderPrintOrder: 'STAMPA ORDINE',
+  orderPrintOrder: 'STAMPA COMANDA',
   orderPrintCourse: 'STAMPA SOLO PORTATA',
   orderPrintPreBill: 'STAMPA PRE-CONTO',
   orderClose: 'CHIUDI TAVOLO',
   print: 'STAMPA',
   course: 'PORTATA',
   total: 'TOTALE',
+  noItemsToPrint: 'Aggiungi almeno una voce per stampare!',
 };

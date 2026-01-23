@@ -9,18 +9,12 @@ export interface MenuCategoryComponentProps {
   onSwitch: (id: string, active: boolean) => void;
 }
 
-export default function MenuCategoryComponent({
-  menuCategory,
-  onClick,
-  onSwitch,
-}: MenuCategoryComponentProps) {
+export default function MenuCategoryComponent({ menuCategory, onClick, onSwitch }: MenuCategoryComponentProps) {
   // Services
   const auth = useAuth();
 
   // Utilities
-  const canEdit = () => {
-    return auth.hasPermissionTo('write-menu');
-  };
+  const canEdit = () => auth.hasPermissionTo('write-menu');
 
   // Content
   return (
@@ -41,12 +35,7 @@ export default function MenuCategoryComponent({
       >
         {menuCategory.title}
       </Button>
-      <SwitchOnOff
-        canEdit={canEdit()}
-        id={menuCategory.id}
-        checked={menuCategory.active}
-        onChange={onSwitch}
-      />
+      <SwitchOnOff canEdit={canEdit()} id={menuCategory.id} checked={menuCategory.active} onChange={onSwitch} />
     </Group>
   );
 }
