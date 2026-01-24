@@ -37,7 +37,7 @@ export type DeleteTableOutputDto = {
 export type UpdateTableInputDto = {
   id: string;
   name?: string;
-  close?: string;
+  close?: boolean;
   paymentMethod?: string;
 };
 

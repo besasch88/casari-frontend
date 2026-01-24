@@ -11,7 +11,7 @@ export function TableListNewButtonComponent({ hidden, onClick }: TableListNewBut
   const { t } = useTranslation();
 
   return (
-    <Affix p={'md'} w={'100%'} flex={'width'} position={{ bottom: 0 }} hidden={hidden}>
+    <Affix p={'md'} position={{ bottom: 0 }} hidden={hidden}>
       <Button size="lg" fullWidth onClick={onClick} leftSection={<IconCirclePlus size={28} />}>
         {t('tableAddNew')}
       </Button>

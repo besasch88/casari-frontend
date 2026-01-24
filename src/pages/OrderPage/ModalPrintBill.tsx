@@ -2,9 +2,10 @@ import { Menu } from '@entities/menu';
 import { MenuItem } from '@entities/menuItem';
 import { MenuOption } from '@entities/menuOption';
 import { Order } from '@entities/order';
-import { OrderCourse, OrderItem } from '@entities/orderCourse';
-import { Box, Button, Divider, Group, Text } from '@mantine/core';
+import { OrderItem } from '@entities/orderCourse';
+import { Box, Button, Center, Divider, Group, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
+import { orderFinalPrice } from './OrderUtils';
 
 export interface ModalPrintBillProps {
   menu: Menu;
@@ -40,35 +41,8 @@ export function ModalPrintBill({ menu, order, onPrint }: ModalPrintBillProps) {
     return o;
   };
 
-  const orderFinalPrice = (order: Order, menu: Menu): number => {
-    const findMenuItem = (item: OrderItem, menu: Menu): MenuItem | MenuOption | null => {
-      for (const c of menu.categories) {
-        for (const i of c.items) {
-          {
-            if (item.menuItemId == i.id) {
-              if (item.menuOptionId == null) {
-                return i;
-              }
-              for (const o of i.options) {
-                if (item.menuOptionId == o.id) {
-                  return o;
-                }
-              }
-            }
-          }
-        }
-      }
-      return null;
-    };
-
-    const courseItemPrice = (item: OrderItem, menu: Menu): number => {
-      const menuItem = findMenuItem(item, menu);
-      return menuItem ? item.quantityOrdered * (menuItem.price / 100) : 0;
-    };
-    const courseFinalPrice = (course: OrderCourse, menu: Menu): number => {
-      return course.items.reduce((tot, i) => tot + courseItemPrice(i, menu), 0);
-    };
-    return order.courses.reduce((tot, c) => tot + courseFinalPrice(c, menu), 0);
+  const getNumberOfElements = (): number => {
+    return order.courses.reduce((tot, c) => tot + c.items.length, 0);
   };
 
   // Content
@@ -118,21 +92,34 @@ export function ModalPrintBill({ menu, order, onPrint }: ModalPrintBillProps) {
 
   return (
     <Box style={{ fontFamily: 'Montserrat' }}>
-      {printMenu(menu, order)}
-      <Divider my={15} />
-      <Box key={`total_item`} mb={50}>
-        <Group wrap="nowrap" w={'100%'} mb={6} justify="space-between">
-          <Text size="lg" fw={600}>
-            {t('total').toUpperCase()}
+      {getNumberOfElements() != 0 && (
+        <>
+          {printMenu(menu, order)}
+          <Divider my={15} />
+          <Box key={`total_item`} mb={50}>
+            <Group wrap="nowrap" w={'100%'} mb={6} justify="space-between">
+              <Text size="lg" fw={600}>
+                {t('total').toUpperCase()}
+              </Text>
+              <Text size="lg" ta={'right'} miw={100}>
+                <span style={{ fontWeight: 600 }}>{Number(orderFinalPrice(order, menu)).toFixed(2)}€</span>
+              </Text>
+            </Group>
+          </Box>
+        </>
+      )}
+      {getNumberOfElements() == 0 && (
+        <Center p={30}>
+          <Text fz={18} fs={'italic'} ta={'center'}>
+            {t('noItemsToPrint')}
           </Text>
-          <Text size="lg" ta={'right'} miw={100}>
-            <span style={{ fontWeight: 600 }}>{Number(orderFinalPrice(order, menu)).toFixed(2)}€</span>
-          </Text>
-        </Group>
-      </Box>
-      <Button size="lg" fullWidth onClick={onPrint}>
-        {t('print')}
-      </Button>
+        </Center>
+      )}
+      {getNumberOfElements() > 0 && (
+        <Button size="lg" fullWidth onClick={onPrint}>
+          {t('print')}
+        </Button>
+      )}
     </Box>
   );
 }

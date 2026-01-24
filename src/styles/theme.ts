@@ -94,11 +94,26 @@ export const mantineTheme: MantineThemeOverride = createTheme({
         size: 'sm',
       },
     },
+    Affix: {
+      defaultProps: {
+        w: {
+          base: '100vw',
+          xs: 'calc(100vw - 250px)',
+          sm: 'calc(100vw - 300px)',
+        },
+        ml: {
+          base: 0,
+          xs: 250,
+          sm: 300,
+        },
+      },
+    },
     Modal: {
       defaultProps: {
         p: 0,
+        zIndex: 302,
         withCloseButton: true,
-        overlayProps: { backgroundOpacity: 0.3, blur: 4 },
+        overlayProps: { backgroundOpacity: 0.3, blur: 4, zIndex: 301 },
       },
     },
     ModalContent: {

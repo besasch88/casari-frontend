@@ -55,5 +55,10 @@ export const itTranslations = {
   print: 'STAMPA',
   course: 'PORTATA',
   total: 'TOTALE',
+  close: 'CHIUDI',
+  cash: 'CONTANTI',
+  reopen: 'RIAPRI',
+  card: 'CARTA DI CREDITO',
   noItemsToPrint: 'Aggiungi almeno una voce per stampare!',
+  reopenConfirm: 'Sei sicuro di voler riaprire il tavolo?',
 };

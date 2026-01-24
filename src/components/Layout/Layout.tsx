@@ -9,7 +9,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <AppShell
       header={{ height: 70 }}
       navbar={{
-        width: { sm: 300 },
+        width: { xs: 250, sm: 300 },
         breakpoint: 'xs',
         collapsed: { mobile: !isOpen, desktop: false },
       }}

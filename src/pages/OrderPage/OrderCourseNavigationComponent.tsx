@@ -20,8 +20,7 @@ export function OrderCourseNavigationComponent({
   return (
     <Affix
       p={'md'}
-      w={'100%'}
-      position={{ bottom: 0, right: 0 }}
+      position={{ bottom: 0 }}
       style={{
         borderTop: '1px solid var(--aimm-bg-paper)',
         background: 'white',

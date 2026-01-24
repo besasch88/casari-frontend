@@ -11,7 +11,7 @@ import { Order } from '@entities/order';
 import { OrderCourse } from '@entities/orderCourse';
 import { Table } from '@entities/table';
 import { AuthGuard } from '@guards/AuthGuard';
-import { Flex, Grid, Group, Loader, Modal, SegmentedControl } from '@mantine/core';
+import { Alert, Flex, Grid, Group, Loader, Modal, SegmentedControl, Text } from '@mantine/core';
 import { menuService } from '@services/menuService';
 import { tableService } from '@services/tableService';
 import { getErrorMessage } from '@utils/errUtils';
@@ -20,6 +20,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import { ModalCloseTable } from './ModalCloseTable';
+import { ModalOpenTable } from './ModalOpenTable';
 import { ModalPrintBill } from './ModalPrintBill';
 import { ModalPrintOrder } from './ModalPrintOrder';
 import classes from './Order.module.css';
@@ -28,6 +30,7 @@ import { getOrderActions } from './OrderActionsData';
 import OrderComponent from './OrderComponent';
 import { OrderCourseNavigationComponent } from './OrderCourseNavigationComponent';
 import { useModals } from './OrderModals';
+import { orderFinalPrice } from './OrderUtils';
 
 export default function OrderPage() {
   const { tableId } = useParams();
@@ -68,12 +71,12 @@ export default function OrderPage() {
         let currentOrder: Order;
         if (!courseData) {
           currentOrder = {
-            ...defaultOrder,
+            ...structuredClone(defaultOrder),
             id: uuidv4().toString(),
             tableId: tableId,
             userId: auth.getUserId()!,
           };
-          currentOrder.courses = [{ ...defaultOrderCourse }];
+          currentOrder.courses = [{ ...structuredClone(defaultOrderCourse) }];
           currentOrder.courses[0].id = uuidv4().toString();
         } else {
           currentOrder = JSON.parse(courseData);
@@ -170,11 +173,6 @@ export default function OrderPage() {
   const getCategoryById = (m: Menu, id: string): MenuCategory => {
     const a = m.categories.find((x) => x.id == id)!;
     return a;
-  };
-
-  const getItems = (category: MenuCategory): MenuItem[] => {
-    if (!category) return [];
-    return category.items.filter((x) => x.active);
   };
 
   const canEdit = () => {
@@ -324,6 +322,16 @@ export default function OrderPage() {
                 />
               </Flex>
             </Grid.Col>
+
+            {table.close && (
+              <Grid.Col span={12}>
+                <Alert variant="filled" color="green" ta={'center'}>
+                  <Text fz={20}>
+                    {t(table.paymentMethod || '')}: <b>{orderFinalPrice(order, menu).toFixed(2)}€</b>
+                  </Text>
+                </Alert>
+              </Grid.Col>
+            )}
             <Grid.Col span={12}>
               <SegmentedControl
                 size="lg"
@@ -344,7 +352,7 @@ export default function OrderPage() {
             </Grid.Col>
             <Grid.Col span={12}>
               <StackList>
-                {getItems(currentCategory).map((menuItem, index) => {
+                {currentCategory.items.map((menuItem, index) => {
                   return (
                     <OrderComponent
                       key={`menu_item_${index}`}
@@ -379,7 +387,13 @@ export default function OrderPage() {
               onClose={modals.reopenTable.close}
               title={`${t('tableTable').toUpperCase()} ${table.name}`}
             >
-              REOPEN
+              <ModalOpenTable
+                table={table}
+                onClick={(t) => {
+                  setTable(t);
+                  modals.reopenTable.close();
+                }}
+              />
             </Modal>
             <Modal
               centered
@@ -388,7 +402,13 @@ export default function OrderPage() {
               onClose={modals.closeTable.close}
               title={`${t('tableTable').toUpperCase()} ${table.name}`}
             >
-              CLOSE
+              <ModalCloseTable
+                table={table}
+                onClick={(t) => {
+                  setTable(t);
+                  modals.closeTable.close();
+                }}
+              />
             </Modal>
             <Modal
               centered
