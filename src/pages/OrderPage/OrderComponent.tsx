@@ -1,7 +1,7 @@
 import { MenuItem } from '@entities/menuItem';
 import { MenuOption } from '@entities/menuOption';
 import { OrderCourse } from '@entities/orderCourse';
-import { Badge, Box, Button } from '@mantine/core';
+import { Badge, Button } from '@mantine/core';
 import { IconChevronDown, IconChevronUp, IconMinus, IconPlus } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
@@ -78,7 +78,7 @@ export default function OrderComponent({
 
   return (
     (menuItem.active || getOrderItem()) && (
-      <Box>
+      <>
         {!hasOptions() && (
           <Button
             fullWidth
@@ -219,7 +219,7 @@ export default function OrderComponent({
                 ))}
           </>
         )}
-      </Box>
+      </>
     )
   );
 }
