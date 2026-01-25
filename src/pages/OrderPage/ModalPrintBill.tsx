@@ -3,18 +3,28 @@ import { MenuItem } from '@entities/menuItem';
 import { MenuOption } from '@entities/menuOption';
 import { Order } from '@entities/order';
 import { OrderItem } from '@entities/orderCourse';
+import { Table } from '@entities/table';
 import { Box, Button, Center, Divider, Group, Text } from '@mantine/core';
+import { orderService } from '@services/orderService';
+import { getErrorMessage } from '@utils/errUtils';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { orderFinalPrice } from './OrderUtils';
 
 export interface ModalPrintBillProps {
+  table: Table;
   menu: Menu;
   order: Order;
-  onPrint: () => void;
+  onPrintDone: () => void;
 }
-export function ModalPrintBill({ menu, order, onPrint }: ModalPrintBillProps) {
+export function ModalPrintBill({ table, menu, order, onPrintDone }: ModalPrintBillProps) {
   // Services
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  // States
+  const [apiLoading, setApiLoading] = useState(false);
 
   // Utilities
   const findOrderItem = (order: Order, menuItemId: string): OrderItem[] => {
@@ -43,6 +53,25 @@ export function ModalPrintBill({ menu, order, onPrint }: ModalPrintBillProps) {
 
   const getNumberOfElements = (): number => {
     return order.courses.reduce((tot, c) => tot + c.items.length, 0);
+  };
+
+  const onPrintClick = async () => {
+    try {
+      setApiLoading(true);
+      await orderService.printOrder({ id: table.id, target: 'bill' });
+    } catch (err: unknown) {
+      switch (getErrorMessage(err)) {
+        case 'refresh-token-failed':
+          navigate('/logout', { replace: true });
+          break;
+        default:
+          navigate('/internal-server-error', { replace: true });
+          break;
+      }
+    } finally {
+      setApiLoading(false);
+      onPrintDone();
+    }
   };
 
   // Content
@@ -116,7 +145,7 @@ export function ModalPrintBill({ menu, order, onPrint }: ModalPrintBillProps) {
         </Center>
       )}
       {getNumberOfElements() > 0 && (
-        <Button size="lg" fullWidth onClick={onPrint}>
+        <Button size="lg" fullWidth onClick={onPrintClick} loading={apiLoading}>
           {t('print')}
         </Button>
       )}

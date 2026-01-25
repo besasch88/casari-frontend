@@ -44,6 +44,7 @@ export default function OrderPage() {
   // States
   const modals = useModals();
   const [isPageLoaded, setPageLoaded] = useState(false);
+
   const [table, setTable] = useState<Table>();
   const [menu, setMenu] = useState<Menu>();
   const [order, setOrder] = useState<Order>();
@@ -73,7 +74,7 @@ export default function OrderPage() {
           setCurrentCourse(orderData.item.courses[0]);
         } catch (err: unknown) {
           switch (getErrorMessage(err)) {
-            case 'endpoint-not-found': {
+            case 'order-not-found': {
               const currentOrder = {
                 ...structuredClone(defaultOrder),
                 id: tableId,
@@ -82,20 +83,6 @@ export default function OrderPage() {
               currentOrder.courses[0].id = uuidv4().toString();
               setOrder(currentOrder);
               setCurrentCourse(currentOrder.courses[0]);
-              /*const courseData = localStorage.getItem(tableId);
-              let currentOrder: Order;
-              if (!courseData) {
-                currentOrder = {
-                  ...structuredClone(defaultOrder),
-                  id: uuidv4().toString(),
-                };
-                currentOrder.courses = [{ ...structuredClone(defaultOrderCourse) }];
-                currentOrder.courses[0].id = uuidv4().toString();
-              } else {
-                currentOrder = JSON.parse(courseData);
-              }
-              setOrder(currentOrder);
-              setCurrentCourse(currentOrder.courses[0]);*/
               break;
             }
             case 'refresh-token-failed':
@@ -130,8 +117,6 @@ export default function OrderPage() {
           await orderService.updateOrder({ id: tableId, courses: order.courses });
         } catch (err: unknown) {
           switch (getErrorMessage(err)) {
-            case 'endpoint-not-found':
-              break;
             case 'refresh-token-failed':
               navigate('/logout', { replace: true });
               break;
@@ -453,7 +438,14 @@ export default function OrderPage() {
               onClose={modals.printOrder.close}
               title={`${t('tableTable').toUpperCase()} ${table.name}`}
             >
-              <ModalPrintOrder menu={menu} order={order} onPrint={() => {}} />
+              <ModalPrintOrder
+                table={table}
+                menu={menu}
+                order={order}
+                onPrintDone={() => {
+                  modals.printOrder.close();
+                }}
+              />
             </Modal>
             <Modal
               centered
@@ -462,7 +454,15 @@ export default function OrderPage() {
               onClose={modals.printCourse.close}
               title={`${t('tableTable').toUpperCase()} ${table.name}`}
             >
-              <ModalPrintOrder menu={menu} course={currentCourse} order={order} onPrint={() => {}} />
+              <ModalPrintOrder
+                table={table}
+                menu={menu}
+                course={currentCourse}
+                order={order}
+                onPrintDone={() => {
+                  modals.printCourse.close();
+                }}
+              />
             </Modal>
             <Modal
               centered
@@ -471,7 +471,14 @@ export default function OrderPage() {
               onClose={modals.printBill.close}
               title={`${t('tableTable').toUpperCase()} ${table.name}`}
             >
-              <ModalPrintBill menu={menu} order={order} onPrint={() => {}} />
+              <ModalPrintBill
+                table={table}
+                menu={menu}
+                order={order}
+                onPrintDone={() => {
+                  modals.printBill.close();
+                }}
+              />
             </Modal>
           </>
         )}

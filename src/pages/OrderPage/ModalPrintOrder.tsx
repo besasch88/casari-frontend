@@ -3,18 +3,47 @@ import { MenuItem } from '@entities/menuItem';
 import { MenuOption } from '@entities/menuOption';
 import { Order } from '@entities/order';
 import { OrderCourse, OrderItem } from '@entities/orderCourse';
+import { Table } from '@entities/table';
 import { Box, Button, Center, Divider, Group, Text } from '@mantine/core';
+import { orderService } from '@services/orderService';
+import { getErrorMessage } from '@utils/errUtils';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 export interface ModalPrintOrderProps {
+  table: Table;
   menu: Menu;
   order: Order;
   course?: OrderCourse;
-  onPrint: () => void;
+  onPrintDone: () => void;
 }
-export function ModalPrintOrder({ menu, order, course, onPrint }: ModalPrintOrderProps) {
+export function ModalPrintOrder({ table, menu, order, course, onPrintDone }: ModalPrintOrderProps) {
   // Services
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  // States
+  const [apiLoading, setApiLoading] = useState(false);
+
+  const onPrintClick = async () => {
+    try {
+      setApiLoading(true);
+      await orderService.printOrder({ id: table.id, target: course ? 'course' : 'order' });
+    } catch (err: unknown) {
+      switch (getErrorMessage(err)) {
+        case 'refresh-token-failed':
+          navigate('/logout', { replace: true });
+          break;
+        default:
+          navigate('/internal-server-error', { replace: true });
+          break;
+      }
+    } finally {
+      setApiLoading(false);
+      onPrintDone();
+    }
+  };
 
   // Utilities
   const findCourseItem = (course: OrderCourse, menuItemId: string): OrderItem[] => {
@@ -120,7 +149,7 @@ export function ModalPrintOrder({ menu, order, course, onPrint }: ModalPrintOrde
         </Center>
       )}
       {getNumberOfElements() > 0 && (
-        <Button size="lg" fullWidth onClick={onPrint}>
+        <Button size="lg" fullWidth onClick={onPrintClick} loading={apiLoading}>
           {t('print')}
         </Button>
       )}
