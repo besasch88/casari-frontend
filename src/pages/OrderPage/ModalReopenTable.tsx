@@ -7,11 +7,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-export interface ModalOpenTableProps {
+export interface ModalReopenTableProps {
   table: Table;
   onClick: (table: Table) => void;
 }
-export function ModalOpenTable({ table, onClick }: ModalOpenTableProps) {
+export function ModalReopenTable({ table, onClick }: ModalReopenTableProps) {
   // Services
   const navigate = useNavigate();
   const { t } = useTranslation();

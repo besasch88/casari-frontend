@@ -13,6 +13,7 @@ import { Table } from '@entities/table';
 import { AuthGuard } from '@guards/AuthGuard';
 import { Alert, Flex, Grid, Group, Loader, Modal, SegmentedControl, Text } from '@mantine/core';
 import { menuService } from '@services/menuService';
+import { orderService } from '@services/orderService';
 import { tableService } from '@services/tableService';
 import { getErrorMessage } from '@utils/errUtils';
 import debounce from 'lodash.debounce';
@@ -21,9 +22,9 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { ModalCloseTable } from './ModalCloseTable';
-import { ModalOpenTable } from './ModalOpenTable';
 import { ModalPrintBill } from './ModalPrintBill';
 import { ModalPrintOrder } from './ModalPrintOrder';
+import { ModalReopenTable } from './ModalReopenTable';
 import classes from './Order.module.css';
 
 import { getOrderActions } from './OrderActionsData';
@@ -66,23 +67,45 @@ export default function OrderPage() {
         setCategories(menuData.item.categories);
         setCurrentCategory(menuData.item.categories[0]);
 
-        // @TODO Retrieve Order
-        const courseData = localStorage.getItem(tableId);
-        let currentOrder: Order;
-        if (!courseData) {
-          currentOrder = {
-            ...structuredClone(defaultOrder),
-            id: uuidv4().toString(),
-            tableId: tableId,
-            userId: auth.getUserId()!,
-          };
-          currentOrder.courses = [{ ...structuredClone(defaultOrderCourse) }];
-          currentOrder.courses[0].id = uuidv4().toString();
-        } else {
-          currentOrder = JSON.parse(courseData);
+        try {
+          const orderData = await orderService.getOrder({ id: tableId });
+          setOrder(orderData.item);
+          setCurrentCourse(orderData.item.courses[0]);
+        } catch (err: unknown) {
+          switch (getErrorMessage(err)) {
+            case 'endpoint-not-found': {
+              const currentOrder = {
+                ...structuredClone(defaultOrder),
+                id: tableId,
+              };
+              currentOrder.courses = [{ ...structuredClone(defaultOrderCourse) }];
+              currentOrder.courses[0].id = uuidv4().toString();
+              setOrder(currentOrder);
+              setCurrentCourse(currentOrder.courses[0]);
+              /*const courseData = localStorage.getItem(tableId);
+              let currentOrder: Order;
+              if (!courseData) {
+                currentOrder = {
+                  ...structuredClone(defaultOrder),
+                  id: uuidv4().toString(),
+                };
+                currentOrder.courses = [{ ...structuredClone(defaultOrderCourse) }];
+                currentOrder.courses[0].id = uuidv4().toString();
+              } else {
+                currentOrder = JSON.parse(courseData);
+              }
+              setOrder(currentOrder);
+              setCurrentCourse(currentOrder.courses[0]);*/
+              break;
+            }
+            case 'refresh-token-failed':
+              navigate('/logout', { replace: true });
+              break;
+            default:
+              navigate('/internal-server-error', { replace: true });
+              break;
+          }
         }
-        setOrder(currentOrder);
-        setCurrentCourse(currentOrder.courses[0]);
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {
           case 'refresh-token-failed':
@@ -100,12 +123,25 @@ export default function OrderPage() {
 
   const debouncedSaveOrder = useMemo(
     () =>
-      debounce((order: Order) => {
+      debounce(async (order: Order) => {
         if (!tableId) return;
         if (order == defaultOrder) return;
-        localStorage.setItem(tableId, JSON.stringify(order));
+        try {
+          await orderService.updateOrder({ id: tableId, courses: order.courses });
+        } catch (err: unknown) {
+          switch (getErrorMessage(err)) {
+            case 'endpoint-not-found':
+              break;
+            case 'refresh-token-failed':
+              navigate('/logout', { replace: true });
+              break;
+            default:
+              navigate('/internal-server-error', { replace: true });
+              break;
+          }
+        }
       }, 500),
-    [tableId]
+    [tableId, navigate]
   );
 
   useEffect(() => {
@@ -387,7 +423,7 @@ export default function OrderPage() {
               onClose={modals.reopenTable.close}
               title={`${t('tableTable').toUpperCase()} ${table.name}`}
             >
-              <ModalOpenTable
+              <ModalReopenTable
                 table={table}
                 onClick={(t) => {
                   setTable(t);

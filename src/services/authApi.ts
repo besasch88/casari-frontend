@@ -11,7 +11,7 @@ export const callAuthApi = async (url: string, method: Method, body: Record<stri
   // If the access token is defined, call the API and if successful return the response
   if (accessToken) {
     response = await callApi(url, method, accessToken, body);
-    if (response && response.ok) return response;
+    if (response && response.status !== 401) return response;
   }
 
   // Check if the refresh token is available

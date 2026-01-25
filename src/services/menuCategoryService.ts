@@ -1,4 +1,4 @@
-import type {
+import {
   ListMenuCategoryOutputDto,
   CreateMenuCategoryInputDto,
   CreateMenuCategoryOutputDto,
