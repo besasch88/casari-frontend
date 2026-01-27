@@ -39,13 +39,13 @@ export default function OrderComponent({
   const getOrderItemQuantity = () => {
     const item = getOrderItem();
     if (!item) return 0;
-    return item.quantityOrdered;
+    return item.quantity;
   };
 
   const getOrderItemTotalQuantity = (menuItemId: string) => {
     return orderCourse.items.reduce((total, item) => {
       if (item.menuItemId == menuItemId && item.menuOptionId != null) {
-        return total + item.quantityOrdered;
+        return total + item.quantity;
       }
       return total;
     }, 0);
@@ -58,7 +58,7 @@ export default function OrderComponent({
   const getOrderItemByOptionQuantity = (o: MenuOption) => {
     const item = getOrderItemByOption(o);
     if (!item) return 0;
-    return item.quantityOrdered;
+    return item.quantity;
   };
 
   const calculateOptionTitle = (o: MenuOption, i: MenuItem) => {

@@ -98,7 +98,7 @@ export function ModalPrintOrder({ table, menu, order, course, onPrintDone }: Mod
         if (i.options.length == 0) {
           const x = findCourseItem(course, i.id);
           const tot = x.reduce((tot, a) => {
-            return tot + a.quantityOrdered;
+            return tot + a.quantity;
           }, 0);
           if (tot > 0) {
             return printItem(i, tot);
@@ -107,7 +107,7 @@ export function ModalPrintOrder({ table, menu, order, course, onPrintDone }: Mod
           return i.options.map((o) => {
             const x = findCourseOption(course, o.id);
             const tot = x.reduce((tot, a) => {
-              return tot + a.quantityOrdered;
+              return tot + a.quantity;
             }, 0);
             if (tot > 0) {
               return printItem(o, tot);

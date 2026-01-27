@@ -228,10 +228,10 @@ export default function OrderPage() {
     if (index == -1) {
       updatedCourse.items.push({
         menuItemId: id,
-        quantityOrdered: 1,
+        quantity: 1,
       });
     } else {
-      updatedCourse.items[index].quantityOrdered++;
+      updatedCourse.items[index].quantity++;
     }
     setCurrentCourse(updatedCourse);
     const updatedOrder = { ...o };
@@ -248,15 +248,15 @@ export default function OrderPage() {
       ...currentCourse,
       items: currentCourse.items
         .map((item) => {
-          if (item.menuItemId === id && item.menuOptionId == null && item.quantityOrdered > 0) {
+          if (item.menuItemId === id && item.menuOptionId == null && item.quantity > 0) {
             return {
               ...item,
-              quantityOrdered: item.quantityOrdered - 1,
+              quantity: item.quantity - 1,
             };
           }
           return item;
         })
-        .filter((x) => x.quantityOrdered > 0),
+        .filter((x) => x.quantity > 0),
     };
     setCurrentCourse(updatedCourse);
     const updatedOrder = { ...o };
@@ -278,10 +278,10 @@ export default function OrderPage() {
       updatedCourse.items.push({
         menuItemId: itemId,
         menuOptionId: optionId,
-        quantityOrdered: 1,
+        quantity: 1,
       });
     } else {
-      updatedCourse.items[index].quantityOrdered++;
+      updatedCourse.items[index].quantity++;
     }
     setCurrentCourse(updatedCourse);
     const updatedOrder = { ...o };
@@ -298,15 +298,15 @@ export default function OrderPage() {
       ...currentCourse,
       items: currentCourse.items
         .map((item) => {
-          if (item.menuItemId === itemId && item.menuOptionId == optionId && item.quantityOrdered > 0) {
+          if (item.menuItemId === itemId && item.menuOptionId == optionId && item.quantity > 0) {
             return {
               ...item,
-              quantityOrdered: item.quantityOrdered - 1,
+              quantity: item.quantity - 1,
             };
           }
           return item;
         })
-        .filter((x) => x.quantityOrdered > 0),
+        .filter((x) => x.quantity > 0),
     };
     setCurrentCourse(updatedCourse);
     const updatedOrder = { ...o };

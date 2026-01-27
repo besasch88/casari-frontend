@@ -1,7 +1,7 @@
 export type OrderItem = {
   menuItemId: string;
   menuOptionId?: string;
-  quantityOrdered: number;
+  quantity: number;
 };
 
 export type OrderCourse = {

@@ -27,7 +27,7 @@ export const orderFinalPrice = (order: Order, menu: Menu): number => {
 
   const courseItemPrice = (item: OrderItem, menu: Menu): number => {
     const menuItem = findMenuItem(item, menu);
-    return menuItem ? item.quantityOrdered * (menuItem.price / 100) : 0;
+    return menuItem ? item.quantity * (menuItem.price / 100) : 0;
   };
   const courseFinalPrice = (course: OrderCourse, menu: Menu): number => {
     return course.items.reduce((tot, i) => tot + courseItemPrice(i, menu), 0);
