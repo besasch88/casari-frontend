@@ -29,7 +29,11 @@ export function ModalPrintOrder({ table, menu, order, course, onPrintDone }: Mod
   const onPrintClick = async () => {
     try {
       setApiLoading(true);
-      await orderService.printOrder({ id: table.id, target: course ? 'course' : 'order' });
+      await orderService.printOrder({
+        id: table.id,
+        target: course ? 'course' : 'order',
+        courseId: course ? course.id : undefined,
+      });
     } catch (err: unknown) {
       switch (getErrorMessage(err)) {
         case 'refresh-token-failed':
