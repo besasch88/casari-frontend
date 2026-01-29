@@ -21,7 +21,7 @@ export type UpdateOrderOutputDto = {
 export type PrintOrderInputDto = {
   id: string;
   courseId?: string;
-  target: 'order' | 'course' | 'bill';
+  target: 'order' | 'course' | 'bill' | 'payment';
 };
 
 export type PrintOrderOutputDto = {

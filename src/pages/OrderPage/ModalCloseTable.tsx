@@ -1,6 +1,7 @@
 import { Table } from '@entities/table';
 import { Box, Button, Group, Radio, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { orderService } from '@services/orderService';
 import { tableService } from '@services/tableService';
 import { IconRosetteDiscountCheck } from '@tabler/icons-react';
 import { getErrorMessage } from '@utils/errUtils';
@@ -36,6 +37,7 @@ export function ModalCloseTable({ table, onClick }: ModalCloseTableProps) {
         paymentMethod: values.paymentMethod,
         close: true,
       });
+      await orderService.printOrder({ id: table.id, target: 'payment' });
       onClick(tableData.item);
     } catch (err: unknown) {
       switch (getErrorMessage(err)) {
