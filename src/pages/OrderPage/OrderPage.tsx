@@ -15,7 +15,9 @@ import { Alert, Flex, Grid, Group, Loader, Modal, SegmentedControl, Text } from 
 import { menuService } from '@services/menuService';
 import { orderService } from '@services/orderService';
 import { tableService } from '@services/tableService';
+import { IconX } from '@tabler/icons-react';
 import { getErrorMessage } from '@utils/errUtils';
+import { sendErrorNotification } from '@utils/notificationUtils';
 import debounce from 'lodash.debounce';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -121,12 +123,17 @@ export default function OrderPage() {
               navigate('/logout', { replace: true });
               break;
             default:
-              navigate('/internal-server-error', { replace: true });
+              sendErrorNotification({
+                id: 'order-save-error',
+                icon: <IconX size={26} />,
+                title: <Text fw={600}>{t('errorOrderSaveTitle')}</Text>,
+                message: <Text>{t('errorOrderSaveDescription')}</Text>,
+              });
               break;
           }
         }
       }, 500),
-    [tableId, navigate]
+    [tableId, navigate, t]
   );
 
   useEffect(() => {
@@ -165,6 +172,7 @@ export default function OrderPage() {
       o.courses.push(newCourse);
       setCurrentCourse(newCourse);
       setOrder(o);
+      debouncedSaveOrder(o);
     } else {
       setCurrentCourse(o.courses[i + 1]);
     }

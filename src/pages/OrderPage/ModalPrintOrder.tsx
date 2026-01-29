@@ -6,7 +6,9 @@ import { OrderCourse, OrderItem } from '@entities/orderCourse';
 import { Table } from '@entities/table';
 import { Box, Button, Center, Divider, Group, Text } from '@mantine/core';
 import { orderService } from '@services/orderService';
+import { IconCheck, IconX } from '@tabler/icons-react';
 import { getErrorMessage } from '@utils/errUtils';
+import { sendErrorNotification, sendSuccessNotification } from '@utils/notificationUtils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -34,13 +36,24 @@ export function ModalPrintOrder({ table, menu, order, course, onPrintDone }: Mod
         target: course ? 'course' : 'order',
         courseId: course ? course.id : undefined,
       });
+      sendSuccessNotification({
+        id: 'order-print-done',
+        icon: <IconCheck size={26} />,
+        title: <Text fw={600}>{t('donePrintTitle')}</Text>,
+        message: <Text>{t('donePrintDescription')}</Text>,
+      });
     } catch (err: unknown) {
       switch (getErrorMessage(err)) {
         case 'refresh-token-failed':
           navigate('/logout', { replace: true });
           break;
         default:
-          navigate('/internal-server-error', { replace: true });
+          sendErrorNotification({
+            id: 'order-print-error',
+            icon: <IconX size={26} />,
+            title: <Text fw={600}>{t('errorPrintTitle')}</Text>,
+            message: <Text>{t('errorPrintDescription')}</Text>,
+          });
           break;
       }
     } finally {

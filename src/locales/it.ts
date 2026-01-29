@@ -61,4 +61,12 @@ export const itTranslations = {
   card: 'CARTA DI CREDITO',
   noItemsToPrint: 'Aggiungi almeno una voce per stampare!',
   reopenConfirm: 'Il tavolo é già stato indicato come pagato. Sei sicuro di volerlo modificare?',
+  errorOrderSaveTitle: 'Errore di salvataggio',
+  errorOrderSaveDescription:
+    "Si é verificato un errore durante il salvataggio dell'ordine. Controlla di essere collegato al WIFI corretto!",
+  errorPrintTitle: 'Errore di stampa',
+  errorPrintDescription:
+    'Si é verificato un errore durante la stampa. Controlla che la stampante sia accessa e connessa!',
+  donePrintTitle: 'Stampa eseguita!',
+  donePrintDescription: 'Il foglio é pronto per il ritiro!',
 };
