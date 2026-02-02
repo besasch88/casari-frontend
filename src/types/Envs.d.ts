@@ -3,7 +3,6 @@ export {};
 declare global {
   interface ImportMetaEnv {
     readonly VITE_BACKEND_URL: string;
-    readonly VITE_DATE_FORMAT: string;
   }
 
   interface ImportMeta {

@@ -13,8 +13,9 @@ export const callApi = async (
   if (accessToken) {
     headers['Authorization'] = `Bearer ${accessToken}`;
   }
-
-  let finalUrl = `${import.meta.env.VITE_BACKEND_URL}${url}`;
+  // Get host fomr envs, or use default backend url
+  const host = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  let finalUrl = `${host}${url}`;
   let fetchBody: string | undefined;
 
   if (method === Method.GET || method === Method.HEAD) {

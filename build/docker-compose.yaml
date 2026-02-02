@@ -10,7 +10,6 @@ services:
       - 5173:5173
     environment:
       VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://localhost:8001}
-      VITE_DATE_FORMAT: ${VITE_DATE_FORMAT:-yyyy-MM-dd, HH:mm}
     networks:
       - frontend-network
 
