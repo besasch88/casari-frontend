@@ -69,4 +69,7 @@ export const itTranslations = {
     'Si é verificato un errore durante la stampa. Controlla che la stampante sia accessa e connessa!',
   donePrintTitle: 'Stampa eseguita!',
   donePrintDescription: 'Il foglio é pronto per il ritiro!',
+  paymentStatistics: 'PAGAMENTI',
+  timeStatistics: 'TEMPISTICHE',
+  timeTable: 'TEMPO ROTAZIONE TAVOLO',
 };
