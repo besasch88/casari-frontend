@@ -1,4 +1,4 @@
-import { GetMenuOutputDto } from '@dtos/MenuDto';
+import { GetMenuOutputDto } from '@dtos/menuBkDto';
 import { Method } from './api.type';
 import { callAuthApi } from './authApi';
 
