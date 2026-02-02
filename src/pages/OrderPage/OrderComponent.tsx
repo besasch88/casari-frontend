@@ -3,31 +3,34 @@ import { MenuOption } from '@entities/menuOption';
 import { OrderCourse } from '@entities/orderCourse';
 import { Badge, Button } from '@mantine/core';
 import { IconChevronDown, IconChevronUp, IconMinus, IconPlus } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 
 export interface OrderComponentProps {
   menuItem: MenuItem;
   orderCourse: OrderCourse;
   canEdit: boolean;
-  expandedItem?: MenuItem;
+  expandedItem: MenuItem | null;
   onAddItemQuantity: (itemId: string) => void;
   onAddOptionQuantity: (itemId: string, optionId: string) => void;
   onRemoveItemQuantity: (itemId: string) => void;
   onRemoveOptionQuantity: (itemId: string, optionId: string) => void;
-  onExpanded: (menuItem: MenuItem) => void;
+  onExpanded: (menuItem: MenuItem | null) => void;
 }
 
-export default function OrderComponent({
-  menuItem,
-  orderCourse,
-  canEdit,
-  onAddItemQuantity,
-  onAddOptionQuantity,
-  onRemoveItemQuantity,
-  onRemoveOptionQuantity,
-  onExpanded,
-  expandedItem,
-}: OrderComponentProps) {
+function OrderComponentFunc(
+  {
+    menuItem,
+    orderCourse,
+    canEdit,
+    onAddItemQuantity,
+    onAddOptionQuantity,
+    onRemoveItemQuantity,
+    onRemoveOptionQuantity,
+    onExpanded,
+    expandedItem,
+  }: OrderComponentProps,
+  ref: React.Ref<HTMLElement>
+) {
   const hasOptions = () => {
     return menuItem.options.length > 0;
   };
@@ -81,6 +84,7 @@ export default function OrderComponent({
       <>
         {!hasOptions() && (
           <Button
+            ref={ref as React.Ref<HTMLButtonElement>}
             fullWidth
             size="lg"
             p={5}
@@ -133,6 +137,7 @@ export default function OrderComponent({
         {hasOptions() && (
           <>
             <Button
+              ref={ref as React.Ref<HTMLButtonElement>}
               fullWidth
               size="lg"
               p={5}
@@ -147,6 +152,7 @@ export default function OrderComponent({
               fw={600}
               onClick={() => {
                 if (!isExpanded) onExpanded(menuItem);
+                if (isExpanded) onExpanded(null);
                 setExpanded(!isExpanded);
               }}
             >
@@ -223,3 +229,6 @@ export default function OrderComponent({
     )
   );
 }
+
+const OrderComponent = forwardRef(OrderComponentFunc);
+export default OrderComponent;

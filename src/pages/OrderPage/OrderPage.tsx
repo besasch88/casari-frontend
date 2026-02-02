@@ -19,7 +19,7 @@ import { IconX } from '@tabler/icons-react';
 import { getErrorMessage } from '@utils/errUtils';
 import { sendErrorNotification } from '@utils/notificationUtils';
 import debounce from 'lodash.debounce';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
@@ -43,6 +43,9 @@ export default function OrderPage() {
   const navigate = useNavigate();
   const auth = useAuth();
 
+  // Scroll
+  const itemsRef = useRef<Record<string, HTMLElement | null>>({});
+
   // States
   const modals = useModals();
   const [isPageLoaded, setPageLoaded] = useState(false);
@@ -53,7 +56,7 @@ export default function OrderPage() {
 
   const [currentCategory, setCurrentCategory] = useState<MenuCategory>();
   const [categories, setCategories] = useState<MenuCategory[]>([]);
-  const [expandedMenuItem, setExpandedMenuItem] = useState<MenuItem>();
+  const [expandedMenuItem, setExpandedMenuItem] = useState<MenuItem | null>(null);
   const [currentCourse, setCurrentCourse] = useState<OrderCourse>();
 
   // Effects
@@ -160,6 +163,15 @@ export default function OrderPage() {
         break;
     }
   };
+
+  useEffect(() => {
+    if (!expandedMenuItem) return;
+    const el = itemsRef.current[expandedMenuItem.id];
+    if (!el) return;
+    window.setTimeout(() => {
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' });
+    }, 120);
+  }, [expandedMenuItem]);
 
   const nextCourse = (o: Order) => {
     if (!currentCourse) return;
@@ -394,6 +406,9 @@ export default function OrderPage() {
                       onRemoveItemQuantity={(itemId) => onRemoveItemQuantity(order, itemId)}
                       onAddOptionQuantity={(itemId, optionId) => onAddOptionQuantity(order, itemId, optionId)}
                       onRemoveOptionQuantity={(itemId, optionId) => onRemoveOptionQuantity(order, itemId, optionId)}
+                      ref={(el: HTMLElement | null) => {
+                        itemsRef.current[menuItem.id] = el;
+                      }}
                     />
                   );
                 })}
