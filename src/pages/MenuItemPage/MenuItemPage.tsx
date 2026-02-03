@@ -2,14 +2,17 @@ import { Layout } from '@components/Layout/Layout';
 
 import { PageTitle } from '@components/PageTitle/PageTitle';
 import { StackList } from '@components/StackList/StackList';
+import { useAuth } from '@context/AuthContext';
 import { MenuCategory } from '@entities/menuCategory';
 import { MenuItem } from '@entities/menuItem';
 import { AuthGuard } from '@guards/AuthGuard';
-import { Grid, Group, Loader } from '@mantine/core';
+import { Affix, Button, Grid, Group, Loader } from '@mantine/core';
 import { menuCategoryService } from '@services/menuCategoryService';
 import { menuItemService } from '@services/menuItemService';
+import { IconCirclePlus } from '@tabler/icons-react';
 import { getErrorMessage } from '@utils/errUtils';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import MenuItemComponent from './MenuItemComponent';
 import MenuItemEmptyStateComponent from './MenuItemEmptyStateComponent';
@@ -18,6 +21,10 @@ export default function MenuItemPage() {
   const { menuCategoryId } = useParams();
   // Services
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const auth = useAuth();
+
+  const canEdit = () => auth.hasPermissionTo('write-menu');
 
   // States
   const [pageLoaded, setPageLoaded] = useState(false);
@@ -85,17 +92,33 @@ export default function MenuItemPage() {
             </Grid.Col>
             <Grid.Col span={12}>
               <StackList>
-                {menuItems.map((menuItem) => (
+                {menuItems.map((menuItem, index) => (
                   <MenuItemComponent
                     key={`menu_item_${menuItem.id}`}
                     menuItem={menuItem}
+                    canMoveUp={index != 0}
+                    canMoveDown={index != menuItems.length - 1}
                     onClick={onMenuItemClick}
+                    onMenuItemUp={alert}
+                    onMenuItemDown={alert}
+                    onMenuItemUpdate={alert}
+                    onMenuItemDelete={alert}
                     onSwitch={onMenuItemSwitch}
                   />
                 ))}
               </StackList>
               {menuItems.length == 0 && <MenuItemEmptyStateComponent />}
             </Grid.Col>
+            <Affix p={'md'} position={{ bottom: 0 }} hidden={!canEdit()}>
+              <Button
+                size="lg"
+                fullWidth
+                onClick={() => alert('DA IMPLEMENTARE')}
+                leftSection={<IconCirclePlus size={28} />}
+              >
+                {t('menuAddItem')}
+              </Button>
+            </Affix>
           </>
         )}
       </Layout>
