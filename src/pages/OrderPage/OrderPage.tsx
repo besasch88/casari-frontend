@@ -21,7 +21,7 @@ import { sendErrorNotification } from '@utils/notificationUtils';
 import debounce from 'lodash.debounce';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { ModalCloseTable } from './ModalCloseTable';
 import { ModalPrintBill } from './ModalPrintBill';
@@ -38,6 +38,9 @@ import { orderFinalPrice } from './OrderUtils';
 export default function OrderPage() {
   const { tableId } = useParams();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const targetValue = searchParams.get('target') || 'inside';
+  const target = targetValue as 'inside' | 'outside';
 
   // Services
   const navigate = useNavigate();
@@ -68,7 +71,7 @@ export default function OrderPage() {
         const tableData = await tableService.getTable({ id: tableId });
         setTable(tableData.item);
         // Retrieve Menu
-        const menuData = await menuService.getMenu();
+        const menuData = await menuService.getMenu({ target: target });
         setMenu(menuData.item);
         setCategories(menuData.item.categories);
         setCurrentCategory(menuData.item.categories[0]);
@@ -111,7 +114,7 @@ export default function OrderPage() {
         setPageLoaded(true);
       }
     })();
-  }, [navigate, tableId, auth]);
+  }, [navigate, tableId, auth, target]);
 
   const debouncedSaveOrder = useMemo(
     () =>
@@ -143,6 +146,10 @@ export default function OrderPage() {
     if (!order) return;
     debouncedSaveOrder(order);
   }, [order, debouncedSaveOrder]);
+
+  const isTargetOutside = () => {
+    return target == 'outside';
+  };
 
   const onMenuActionClick = (code: string) => {
     switch (code) {
@@ -343,7 +350,7 @@ export default function OrderPage() {
         {!isPageLoaded && (
           <Grid.Col span={12}>
             <Flex wrap="nowrap" w={'100%'} gap={10}>
-              <PageTitle title="..." backLink="/tables" />
+              <PageTitle title="..." backLink={isTargetOutside() ? '/takeaway' : '/tables'} />
             </Flex>
             <Group mt={75} justify="center" align="center">
               <Loader type="dots" />
@@ -356,7 +363,7 @@ export default function OrderPage() {
               <Flex wrap="nowrap" w={'100%'} gap={10}>
                 <PageTitle
                   title={table.name}
-                  backLink="/tables"
+                  backLink={isTargetOutside() ? '/takeaway' : '/tables'}
                   actions={getOrderActions(t, table.close, (code: string) => {
                     onMenuActionClick(code);
                   })}
@@ -414,7 +421,7 @@ export default function OrderPage() {
                 })}
               </StackList>
             </Grid.Col>
-            {!isAnyModalOpen() && (
+            {!isAnyModalOpen() && !isTargetOutside() && (
               <OrderCourseNavigationComponent
                 isPreviousVisible={!isSelectedCourseFirst(order)}
                 onPreviousClick={() => previousCourse(order)}

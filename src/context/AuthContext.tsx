@@ -10,6 +10,8 @@ export type Permission =
   | 'write-my-tables'
   | 'read-other-tables'
   | 'write-other-tables'
+  | 'read-takeaway'
+  | 'write-takeaway'
   | 'read-statistics';
 
 export interface JwtClaims {

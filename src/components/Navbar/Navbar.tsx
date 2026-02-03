@@ -1,6 +1,13 @@
 import { useAuth } from '@context/AuthContext';
 import { Paper, ScrollArea } from '@mantine/core';
-import { IconChartHistogram, IconColumns, IconDoorExit, IconLayout2, IconPrinter } from '@tabler/icons-react';
+import {
+  IconBasket,
+  IconChartHistogram,
+  IconColumns,
+  IconDoorExit,
+  IconLayout2,
+  IconPrinter,
+} from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import classes from './Navbar.module.css';
@@ -16,28 +23,35 @@ export function Navbar() {
 
   useEffect(() => {
     const items = [];
-    if (auth.getPermissions().includes('read-my-tables') || auth.getPermissions().includes('read-other-tables')) {
+    if (auth.hasPermissionTo('read-my-tables') || auth.hasPermissionTo('read-other-tables')) {
       items.push({
         label: t('menuTables'),
         icon: IconLayout2,
         link: '/tables',
       });
     }
-    if (auth.getPermissions().includes('read-menu')) {
+    if (auth.hasPermissionTo('read-takeaway')) {
+      items.push({
+        label: t('menuTakeaway'),
+        icon: IconBasket,
+        link: '/takeaway',
+      });
+    }
+    if (auth.hasPermissionTo('read-menu')) {
       items.push({
         label: t('menuMenu'),
         icon: IconColumns,
         link: '/menu/categories',
       });
     }
-    if (auth.getPermissions().includes('read-printer')) {
+    if (auth.hasPermissionTo('read-printer')) {
       items.push({
         label: t('menuPrinter'),
         icon: IconPrinter,
         link: '/printers',
       });
     }
-    if (auth.getPermissions().includes('read-statistics')) {
+    if (auth.hasPermissionTo('read-statistics')) {
       items.push({
         label: t('menuStatistics'),
         icon: IconChartHistogram,

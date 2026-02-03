@@ -22,6 +22,7 @@ import MenuOptionPage from '@pages/MenuOptionPage/MenuOptionPage';
 import OrderPage from '@pages/OrderPage/OrderPage';
 import StatisticsPage from '@pages/StatisticsPage/StatisticsPage';
 import TableListPage from '@pages/TableListPage/TableListPage';
+import TakeawayListPage from '@pages/TakeawayListPage/TakeawayListPage';
 import { cssVariablesResolver, mantineTheme } from '@styles/theme';
 import { ScrollToTop } from '@utils/ScrollToTop';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -44,6 +45,8 @@ export function App() {
               <Route path="/" element={<Navigate to="/tables" replace />} />
               <Route path="/tables" element={<TableListPage />} />
               <Route path="/tables/:tableId" element={<OrderPage />} />
+              <Route path="/takeaway" element={<TakeawayListPage />} />
+              <Route path="/takeaway/:tableId" element={<OrderPage />} />
               <Route path="/menu/categories" element={<MenuCategoryPage />} />
               <Route path="/menu/categories/:menuCategoryId" element={<MenuItemPage />} />
               <Route path="/menu/items/:menuItemId" element={<MenuOptionPage />} />

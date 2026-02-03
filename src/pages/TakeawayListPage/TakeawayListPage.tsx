@@ -8,13 +8,13 @@ import { getErrorMessage } from '@utils/errUtils';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { TableListMyComponent } from './TableListMyComponent';
-import { TableListNewButtonComponent } from './TableListNewButtonComponent';
-import { TableListNewModalComponent } from './TableListNewModalComponent';
-import { TableListOthersComponent } from './TableListOthersComponent';
-import { useModals } from './TableModals';
+import { TakeawayListMyComponent } from './TakeawayListMyComponent';
+import { TakeawayListNewButtonComponent } from './TakeawayListNewButtonComponent';
+import { TakeawayListNewModalComponent } from './TakeawayListNewModalComponent';
+import { TakeawayListOthersComponent } from './TakeawayListOthersComponent';
+import { useModals } from './TakeawayModals';
 
-export default function TableListPage() {
+export default function TakeawayListPage() {
   // Services
   const navigate = useNavigate();
   const auth = useAuth();
@@ -26,15 +26,15 @@ export default function TableListPage() {
   // States
   const modals = useModals();
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [tables, setTables] = useState<Table[]>([]);
+  const [takeaways, setTakeaways] = useState<Table[]>([]);
   const [selectedSection, setSelectedSection] = useState(sections.MY_TABLES);
 
   // Effects
   useEffect(() => {
     (async () => {
       try {
-        const tableData = await tableService.listTables({ target: 'inside', includeClosed: true });
-        setTables(tableData.items);
+        const takeawayData = await tableService.listTables({ target: 'outside', includeClosed: true });
+        setTakeaways(takeawayData.items);
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {
           case 'forbidden':
@@ -52,9 +52,9 @@ export default function TableListPage() {
     })();
   }, [navigate]);
 
-  const canCreateTable = (): boolean => {
+  const canCreateTakeaway = (): boolean => {
     return (
-      !modals.newTable.isOpen &&
+      !modals.newTakeaway.isOpen &&
       selectedSection == sections.MY_TABLES &&
       auth.hasPermissionTo('read-my-tables') &&
       auth.hasPermissionTo('write-my-tables')
@@ -81,11 +81,11 @@ export default function TableListPage() {
                 size="lg"
                 data={[
                   {
-                    label: t('tableMyTableMenu').toUpperCase(),
+                    label: t('takeawayMyTakeawayMenu').toUpperCase(),
                     value: sections.MY_TABLES,
                   },
                   {
-                    label: t('tableOtherTableMenu').toUpperCase(),
+                    label: t('takeawayOtherTakeawayMenu').toUpperCase(),
                     value: sections.OTHER_TABLES,
                   },
                 ]}
@@ -93,19 +93,19 @@ export default function TableListPage() {
             </Grid.Col>
             {selectedSection == sections.MY_TABLES && (
               <Grid.Col span={12}>
-                <TableListMyComponent tables={tables} />
+                <TakeawayListMyComponent takeaways={takeaways} />
               </Grid.Col>
             )}
             {selectedSection == sections.OTHER_TABLES && (
               <Grid.Col span={12}>
-                <TableListOthersComponent tables={tables} />
+                <TakeawayListOthersComponent takeaways={takeaways} />
               </Grid.Col>
             )}
-            <TableListNewButtonComponent hidden={!canCreateTable()} onClick={modals.newTable.open} />
+            <TakeawayListNewButtonComponent hidden={!canCreateTakeaway()} onClick={modals.newTakeaway.open} />
           </>
         )}
       </Layout>
-      <TableListNewModalComponent isOpen={modals.newTable.isOpen} onClose={modals.newTable.close} />
+      <TakeawayListNewModalComponent isOpen={modals.newTakeaway.isOpen} onClose={modals.newTakeaway.close} />
     </AuthGuard>
   );
 }

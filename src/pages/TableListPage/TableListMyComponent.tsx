@@ -1,7 +1,7 @@
 import { StackList } from '@components/StackList/StackList';
 import { useAuth } from '@context/AuthContext';
 import { Table } from '@entities/table';
-import { useNavigate } from 'react-router-dom';
+import { createSearchParams, useNavigate } from 'react-router-dom';
 import TableListComponent from './TableListComponent';
 import TableListMyTableEmptyStateComponent from './TableListMyTableEmptyStateComponent';
 import TableListNoPermissionsEmptyStateComponent from './TableListNoPermissionsEmptyStateComponent';
@@ -22,7 +22,15 @@ export function TableListMyComponent({ tables }: TableListMyComponentProps) {
   };
 
   const onTableItemClick = (id: string) => {
-    navigate(`${id}`, { replace: true });
+    navigate(
+      {
+        pathname: `${id}`,
+        search: createSearchParams({
+          target: 'inside',
+        }).toString(),
+      },
+      { replace: true }
+    );
   };
 
   // Content

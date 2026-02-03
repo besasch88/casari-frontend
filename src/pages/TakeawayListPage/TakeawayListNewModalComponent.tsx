@@ -7,12 +7,12 @@ import { ChangeEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 
-export interface TableListNewModalComponentProps {
+export interface TakeawayListNewModalComponentProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function TableListNewModalComponent({ isOpen, onClose }: TableListNewModalComponentProps) {
+export function TakeawayListNewModalComponent({ isOpen, onClose }: TakeawayListNewModalComponentProps) {
   // Services
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -23,7 +23,7 @@ export function TableListNewModalComponent({ isOpen, onClose }: TableListNewModa
   // Form
   const form = useForm({
     initialValues: {
-      name: '',
+      name: 'ASPORTO ',
     },
     validate: {
       name: (value: string) => (value.trim().length != 0 ? null : t('fieldIsRequired')),
@@ -40,26 +40,26 @@ export function TableListNewModalComponent({ isOpen, onClose }: TableListNewModa
   };
 
   // Handler
-  const handleCreateTableSubmit = async (values: typeof form.values) => {
+  const handleCreateTakeawaySubmit = async (values: typeof form.values) => {
     try {
       setApiLoading(true);
       const data = await tableService.createTable({
-        inside: true,
+        inside: false,
         name: values.name,
       });
       navigate(
         {
-          pathname: data.item.id,
+          pathname: `${data.item.id}`,
           search: createSearchParams({
-            target: 'inside',
+            target: 'outside',
           }).toString(),
         },
         { replace: true }
       );
     } catch (err: unknown) {
       switch (getErrorMessage(err)) {
-        case 'table-same-name-already-exists':
-          form.setFieldError('name', t('tableNameAlreadyInUse'));
+        case 'takeaway-same-name-already-exists':
+          form.setFieldError('name', t('takeawayNameAlreadyInUse'));
           break;
         case 'refresh-token-failed':
           navigate('/logout', { replace: true });
@@ -74,15 +74,15 @@ export function TableListNewModalComponent({ isOpen, onClose }: TableListNewModa
   };
 
   return (
-    <Modal centered withCloseButton title={t('tableAddNew')} opened={isOpen} onClose={onModalClose}>
-      <form onSubmit={form.onSubmit(handleCreateTableSubmit)}>
+    <Modal centered withCloseButton title={t('takeawayAddNew')} opened={isOpen} onClose={onModalClose}>
+      <form onSubmit={form.onSubmit(handleCreateTakeawaySubmit)}>
         <TextInput
           size="lg"
           autoFocus
           withAsterisk
           disabled={apiLoading}
           leftSection={<IconLayout2 size={22} />}
-          placeholder={t('tableInsertTypeName')}
+          placeholder={t('takeawayInsertTypeName')}
           key={form.key('name')}
           {...form.getInputProps('name')}
           onChange={onInputFormChange}
@@ -97,7 +97,7 @@ export function TableListNewModalComponent({ isOpen, onClose }: TableListNewModa
           loaderProps={{ type: 'dots' }}
           leftSection={<IconCirclePlus size={28} />}
         >
-          {t('tableAdd')}
+          {t('takeawayAdd')}
         </Button>
       </form>
     </Modal>

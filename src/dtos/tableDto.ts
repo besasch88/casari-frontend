@@ -1,6 +1,7 @@
 import { Table } from '@entities/table';
 
 export type ListTableInputDto = {
+  target: 'inside' | 'outside';
   includeClosed?: boolean;
 };
 
@@ -19,6 +20,7 @@ export type GetTableOutputDto = {
 };
 
 export type CreateTableInputDto = {
+  inside: boolean;
   name: string;
 };
 

@@ -1,10 +1,10 @@
-import { GetMenuOutputDto } from '@dtos/menuDto';
+import { GetMenuInputDto, GetMenuOutputDto } from '@dtos/menuDto';
 import { Method } from './api.type';
 import { callAuthApi } from './authApi';
 
 export const menuService = {
-  async getMenu(): Promise<GetMenuOutputDto> {
-    const response = await callAuthApi(`/api/v1/menu`, Method.GET);
+  async getMenu(input: GetMenuInputDto): Promise<GetMenuOutputDto> {
+    const response = await callAuthApi(`/api/v1/menu`, Method.GET, input);
     if (!response) {
       throw new Error('menu-get-failed');
     }
