@@ -2,8 +2,7 @@ import { Layout } from '@components/Layout/Layout';
 import { PageTitle } from '@components/PageTitle/PageTitle';
 import { StackList } from '@components/StackList/StackList';
 import { useAuth } from '@context/AuthContext';
-import { defaultOrderCourse } from '@dtos/defaultOrderCourseDto';
-import { defaultOrder } from '@dtos/defaultOrderDto';
+import { Target } from '@dtos/targetDto';
 import { Menu } from '@entities/menu';
 import { MenuCategory } from '@entities/menuCategory';
 import { MenuItem } from '@entities/menuItem';
@@ -30,17 +29,16 @@ import { ModalReopenTable } from './ModalReopenTable';
 import classes from './Order.module.css';
 
 import { getOrderActions } from './OrderActionsData';
-import OrderComponent from './OrderComponent';
+import { OrderComponent } from './OrderComponent';
 import { OrderCourseNavigationComponent } from './OrderCourseNavigationComponent';
 import { useModals } from './OrderModals';
 import { orderFinalPrice } from './OrderUtils';
 
-export default function OrderPage() {
+export function OrderPage() {
   const { tableId } = useParams();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const targetValue = searchParams.get('target') || 'inside';
-  const target = targetValue as 'inside' | 'outside';
+  const target = searchParams.get('target') as Target;
 
   // Services
   const navigate = useNavigate();
@@ -84,11 +82,9 @@ export default function OrderPage() {
           switch (getErrorMessage(err)) {
             case 'order-not-found': {
               const currentOrder = {
-                ...structuredClone(defaultOrder),
                 id: tableId,
+                courses: [{ id: uuidv4().toString(), items: [] }],
               };
-              currentOrder.courses = [{ ...structuredClone(defaultOrderCourse) }];
-              currentOrder.courses[0].id = uuidv4().toString();
               setOrder(currentOrder);
               setCurrentCourse(currentOrder.courses[0]);
               break;
@@ -120,7 +116,9 @@ export default function OrderPage() {
     () =>
       debounce(async (order: Order) => {
         if (!tableId) return;
-        if (order == defaultOrder) return;
+        if (auth.getUserId() !== table?.userId) {
+          if (!auth.hasPermissionTo('write-other-tables')) return;
+        }
         try {
           await orderService.updateOrder({ id: tableId, courses: order.courses });
         } catch (err: unknown) {
@@ -139,7 +137,7 @@ export default function OrderPage() {
           }
         }
       }, 500),
-    [tableId, navigate, t]
+    [tableId, navigate, t, auth, table]
   );
 
   useEffect(() => {
@@ -148,7 +146,7 @@ export default function OrderPage() {
   }, [order, debouncedSaveOrder]);
 
   const isTargetOutside = () => {
-    return target == 'outside';
+    return target == Target.outside;
   };
 
   const onMenuActionClick = (code: string) => {
@@ -364,7 +362,7 @@ export default function OrderPage() {
                 <PageTitle
                   title={table.name}
                   backLink={isTargetOutside() ? '/takeaway' : '/tables'}
-                  actions={getOrderActions(t, table.close, (code: string) => {
+                  actions={getOrderActions(auth, t, table, (code: string) => {
                     onMenuActionClick(code);
                   })}
                 />

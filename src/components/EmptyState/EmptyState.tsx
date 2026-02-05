@@ -7,10 +7,11 @@ export interface EmptyStateProps {
   suggestion?: string;
   imageName: string;
   btnText?: string;
-  btnHandle?: () => void;
+  btnOnClick?: () => void;
 }
 
-export function EmptyState({ title, text, suggestion, imageName, btnText, btnHandle }: EmptyStateProps) {
+export function EmptyState({ title, text, suggestion, imageName, btnText, btnOnClick }: EmptyStateProps) {
+  // Content
   const Image = assets[`../assets/${imageName}.svg`];
 
   return (
@@ -31,8 +32,8 @@ export function EmptyState({ title, text, suggestion, imageName, btnText, btnHan
           {suggestion}
         </Text>
       )}
-      {btnText && btnHandle ? (
-        <Button mt={20} mb={40} onClick={btnHandle}>
+      {btnText && btnOnClick ? (
+        <Button mt={20} mb={40} onClick={btnOnClick}>
           {btnText}
         </Button>
       ) : (

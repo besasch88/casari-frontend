@@ -9,10 +9,10 @@ import { getErrorMessage } from '@utils/errUtils';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import MenuCategoryComponent from './MenuCategoryComponent';
-import MenuCategoryEmptyStateComponent from './MenuCategoryEmptyStateComponent';
+import { MenuCategoryComponent } from './MenuCategoryComponent';
+import { MenuCategoryEmptyStateComponent } from './MenuCategoryEmptyStateComponent';
 
-export default function MenuCategoryPage() {
+export function MenuCategoryPage() {
   // Services
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -21,15 +21,16 @@ export default function MenuCategoryPage() {
   const [pageLoaded, setPageLoaded] = useState(false);
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
 
-  const onMenuCategoryClick = (id: string) => {
+  // Handlers
+  const onMenuCategoryClickHandler = (id: string) => {
     navigate(`${id}`, { replace: true });
   };
 
-  const onMenuCategorySwitch = async (id: string, active: boolean) => {
+  const onMenuCategorySwitchHandler = async (menuCategory: MenuCategory, checked: boolean) => {
     try {
       const menuCategoryData = await menuCategoryService.updateMenuCategory({
-        id: id,
-        active: active,
+        id: menuCategory.id,
+        active: checked,
       });
       setMenuCategories((prev) =>
         prev.map((item) => (item.id === menuCategoryData.item.id ? menuCategoryData.item : item))
@@ -60,6 +61,7 @@ export default function MenuCategoryPage() {
     })();
   }, [navigate]);
 
+  // Content
   return (
     <AuthGuard>
       <Layout>
@@ -82,8 +84,8 @@ export default function MenuCategoryPage() {
                   <MenuCategoryComponent
                     key={`menu_category_${menuCategory.id}`}
                     menuCategory={menuCategory}
-                    onClick={onMenuCategoryClick}
-                    onSwitch={onMenuCategorySwitch}
+                    onClick={onMenuCategoryClickHandler}
+                    onSwitch={onMenuCategorySwitchHandler}
                   />
                 ))}
               </StackList>

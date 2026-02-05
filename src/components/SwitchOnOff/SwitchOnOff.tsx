@@ -1,20 +1,22 @@
 import { Switch } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
 
-export interface SwitchOnOffProps {
-  id: string;
+export interface SwitchOnOffProps<T> {
+  reference: T;
   checked: boolean;
-  canEdit: boolean;
-  onChange: (id: string, active: boolean) => void;
+  readOnly: boolean;
+  onChange: (reference: T, checked: boolean) => void;
 }
 
-export default function SwitchOnOff({ id, checked, canEdit, onChange }: SwitchOnOffProps) {
-  const onSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (canEdit) {
-      onChange(id, event.currentTarget.checked);
+export function SwitchOnOff<T>({ reference, checked, readOnly, onChange }: SwitchOnOffProps<T>) {
+  // Handlers
+  const onSwitchChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!readOnly) {
+      onChange(reference, event.currentTarget.checked);
     }
   };
 
+  // Content
   const checkIcon = () => <IconCheck size={12} color="var(--mantine-color-teal-6)" stroke={3} />;
   const xIcon = () => <IconX size={12} color="var(--mantine-color-red-6)" stroke={3} />;
 
@@ -24,7 +26,7 @@ export default function SwitchOnOff({ id, checked, canEdit, onChange }: SwitchOn
       size="lg"
       onLabel="ON"
       offLabel="OFF"
-      onChange={onSwitchChange}
+      onChange={onSwitchChangeHandler}
       color="teal"
       thumbIcon={checked ? checkIcon() : xIcon()}
     ></Switch>

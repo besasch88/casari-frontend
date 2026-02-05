@@ -1,7 +1,7 @@
 import { EmptyState } from '@components/EmptyState/EmptyState';
 import { useTranslation } from 'react-i18next';
 
-export default function TakeawayListNoPermissionsEmptyStateComponent() {
+export function TakeawayListNoPermissionsEmptyStateComponent() {
   const { t } = useTranslation();
   return (
     <EmptyState

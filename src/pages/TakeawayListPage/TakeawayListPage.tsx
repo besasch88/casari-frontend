@@ -1,5 +1,6 @@
 import { Layout } from '@components/Layout/Layout';
 import { useAuth } from '@context/AuthContext';
+import { Target } from '@dtos/targetDto';
 import { Table } from '@entities/table';
 import { AuthGuard } from '@guards/AuthGuard';
 import { Grid, Group, Loader, SegmentedControl } from '@mantine/core';
@@ -14,7 +15,7 @@ import { TakeawayListNewModalComponent } from './TakeawayListNewModalComponent';
 import { TakeawayListOthersComponent } from './TakeawayListOthersComponent';
 import { useModals } from './TakeawayModals';
 
-export default function TakeawayListPage() {
+export function TakeawayListPage() {
   // Services
   const navigate = useNavigate();
   const auth = useAuth();
@@ -33,7 +34,7 @@ export default function TakeawayListPage() {
   useEffect(() => {
     (async () => {
       try {
-        const takeawayData = await tableService.listTables({ target: 'outside', includeClosed: true });
+        const takeawayData = await tableService.listTables({ target: Target.outside, includeClosed: true });
         setTakeaways(takeawayData.items);
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {

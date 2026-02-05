@@ -5,6 +5,8 @@ export type MenuCategory = {
   title: string;
   position: number;
   active: boolean;
+  inside: boolean;
+  outside: boolean;
   printerId: string | null;
   createdAt: string;
   updatedAt: string;

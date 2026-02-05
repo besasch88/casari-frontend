@@ -1,7 +1,8 @@
 import { Table } from '@entities/table';
+import { Target } from './targetDto';
 
 export type ListTableInputDto = {
-  target: 'inside' | 'outside';
+  target: Target;
   includeClosed?: boolean;
 };
 

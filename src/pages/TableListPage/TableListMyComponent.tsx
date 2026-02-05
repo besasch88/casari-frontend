@@ -1,10 +1,11 @@
 import { StackList } from '@components/StackList/StackList';
 import { useAuth } from '@context/AuthContext';
+import { Target } from '@dtos/targetDto';
 import { Table } from '@entities/table';
 import { createSearchParams, useNavigate } from 'react-router-dom';
-import TableListComponent from './TableListComponent';
-import TableListMyTableEmptyStateComponent from './TableListMyTableEmptyStateComponent';
-import TableListNoPermissionsEmptyStateComponent from './TableListNoPermissionsEmptyStateComponent';
+import { TableListComponent } from './TableListComponent';
+import { TableListMyTableEmptyStateComponent } from './TableListMyTableEmptyStateComponent';
+import { TableListNoPermissionsEmptyStateComponent } from './TableListNoPermissionsEmptyStateComponent';
 
 export interface TableListMyComponentProps {
   tables: Table[];
@@ -26,7 +27,7 @@ export function TableListMyComponent({ tables }: TableListMyComponentProps) {
       {
         pathname: `${id}`,
         search: createSearchParams({
-          target: 'inside',
+          target: Target.inside,
         }).toString(),
       },
       { replace: true }

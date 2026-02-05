@@ -1,7 +1,7 @@
 import { EmptyState } from '@components/EmptyState/EmptyState';
 import { useTranslation } from 'react-i18next';
 
-export default function MenuItemEmptyStateComponent() {
+export function MenuItemEmptyStateComponent() {
   const { t } = useTranslation();
   return (
     <EmptyState

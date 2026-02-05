@@ -1,10 +1,11 @@
 import { StackList } from '@components/StackList/StackList';
 import { useAuth } from '@context/AuthContext';
+import { Target } from '@dtos/targetDto';
 import { Table } from '@entities/table';
 import { createSearchParams, useNavigate } from 'react-router-dom';
-import TakeawayListComponent from './TakeawayListComponent';
-import TakeawayListMyTakeawayEmptyStateComponent from './TakeawayListMyTakeawayEmptyStateComponent';
-import TakeawayListNoPermissionsEmptyStateComponent from './TakeawayListNoPermissionsEmptyStateComponent';
+import { TakeawayListComponent } from './TakeawayListComponent';
+import { TakeawayListMyTakeawayEmptyStateComponent } from './TakeawayListMyTakeawayEmptyStateComponent';
+import { TakeawayListNoPermissionsEmptyStateComponent } from './TakeawayListNoPermissionsEmptyStateComponent';
 
 export interface TakeawayListMyComponentProps {
   takeaways: Table[];
@@ -26,7 +27,7 @@ export function TakeawayListMyComponent({ takeaways }: TakeawayListMyComponentPr
       {
         pathname: `${id}`,
         search: createSearchParams({
-          target: 'outside',
+          target: Target.outside,
         }).toString(),
       },
       { replace: true }

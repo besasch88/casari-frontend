@@ -34,6 +34,8 @@ export type UpdateMenuCategoryInputDto = {
   id: string;
   title?: string;
   active?: boolean;
+  inside?: boolean;
+  outside?: boolean;
   position?: number;
   printerId?: string;
 };

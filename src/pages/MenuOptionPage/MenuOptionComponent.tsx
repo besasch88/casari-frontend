@@ -1,9 +1,10 @@
-import SwitchOnOff from '@components/SwitchOnOff/SwitchOnOff';
+import { MenuButton } from '@components/MenuButton/MenuButton';
+import { SwitchOnOff } from '@components/SwitchOnOff/SwitchOnOff';
 import { useAuth } from '@context/AuthContext';
 import { MenuItem } from '@entities/menuItem';
 import { MenuOption } from '@entities/menuOption';
-import { ActionIcon, Button, Group, Menu } from '@mantine/core';
-import { IconArrowDown, IconArrowUp, IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
+import { ActionIcon, Group, Menu } from '@mantine/core';
+import { IconArrowDown, IconArrowUp, IconBasket, IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 export interface MenuOptionComponentProps {
@@ -11,16 +12,14 @@ export interface MenuOptionComponentProps {
   menuOption: MenuOption;
   canMoveUp: boolean;
   canMoveDown: boolean;
-  onClick: (id: string) => void;
-  onSwitch: (id: string, value: boolean) => void;
+  onSwitch: (menuOption: MenuOption, newValue: boolean) => void;
 }
 
-export default function MenuOptionComponent({
+export function MenuOptionComponent({
   menuItem,
   menuOption,
   canMoveUp,
   canMoveDown,
-  onClick,
   onSwitch,
 }: MenuOptionComponentProps) {
   // Services
@@ -28,37 +27,33 @@ export default function MenuOptionComponent({
   const { t } = useTranslation();
 
   // Utilities
-  const canEdit = () => auth.hasPermissionTo('write-menu');
-  const getPrice = (i: MenuOption) => (i.price / 100).toFixed(2);
-  const calculateOptionTitle = (o: MenuOption, i: MenuItem) => {
-    if (o.title !== i.title && o.title.startsWith(i.title)) {
-      return o.title.slice(i.title.length).trim();
-    }
-    return o.title;
-  };
+  const isReadOnly = !auth.hasPermissionTo('write-menu');
+  const price = (menuOption.price / 100).toFixed(2);
+  const isOnlyOutside = menuOption.outside && !menuOption.inside;
+  let btnText = menuOption.title;
+  if (menuOption.title !== menuItem.title && menuOption.title.startsWith(menuItem.title)) {
+    btnText = menuOption.title.slice(menuItem.title.length).trim();
+  }
+  btnText = `${btnText} (${price}€)`;
 
   // Content
   return (
-    <Group wrap="nowrap" key={`item_${menuOption.id}`} gap={6}>
-      <Button
-        px={15}
-        onClick={() => onClick(menuOption.id)}
-        fullWidth
-        size="lg"
-        justify="left"
-        ta={'left'}
-        variant="default"
-        color="var(--aimm-bg-paper)"
-        bg={menuOption.price == 0 ? '#fff' : '#efefef'}
-        bd={'1px solid var(--mantine-color-dark-1)'}
-        c="var(--mantine-color-text)"
-        fz={15}
-        fw={300}
-      >
-        {`${calculateOptionTitle(menuOption, menuItem)} (${getPrice(menuOption)}€)`}
-      </Button>
-      <SwitchOnOff canEdit={canEdit()} id={menuOption.id} checked={menuOption.active} onChange={onSwitch} />
-      {canEdit() && (
+    <Group wrap="nowrap" gap={6}>
+      <MenuButton
+        reference={menuItem}
+        rightSection={isOnlyOutside && <IconBasket color="var(--mantine-color-brand-4)"></IconBasket>}
+        clickable={false}
+        text={btnText}
+      ></MenuButton>
+      <SwitchOnOff
+        readOnly={isReadOnly}
+        reference={menuOption}
+        checked={menuOption.active}
+        onChange={(reference, checked) => {
+          onSwitch(reference, checked);
+        }}
+      />
+      {!isReadOnly && (
         <Menu>
           <Menu.Target>
             <ActionIcon variant="outline">

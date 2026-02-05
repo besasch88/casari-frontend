@@ -23,7 +23,7 @@ export interface JwtClaims {
   permissions: Permission[]; // array of permissions
 }
 
-type AuthContextType = {
+export type AuthContextType = {
   getUserId: () => string | null;
   getUsername: () => string | null;
   getAccessToken: () => string | null;
@@ -94,11 +94,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         getUsername,
         getAccessToken,
         getRefreshToken,
+        hasPermissionTo,
         getPermissions,
         login,
         refresh,
         logout,
-        hasPermissionTo,
       }}
     >
       {children}
@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used inside AuthProvider');
   return context;

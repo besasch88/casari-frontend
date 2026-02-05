@@ -16,7 +16,28 @@ export interface PageTitleProps {
 }
 
 export function PageTitle({ title, backLink, actions }: PageTitleProps) {
+  // Services
   const navigate = useNavigate();
+
+  // Handlers
+  const onBackClickHandler = () => {
+    if (backLink) {
+      navigate(backLink, { replace: true });
+    }
+  };
+
+  // Content
+  const renderAction = (action: PageTitleAction, index: number, isLast: boolean) => {
+    return (
+      <div key={`title_menu_item_${index}`}>
+        <Menu.Item onClick={action.onClick} leftSection={<action.icon size={30} />} my={10}>
+          <Text size="lg">{action.text}</Text>
+        </Menu.Item>
+        {!isLast && <Menu.Divider />}
+      </div>
+    );
+  };
+
   return (
     <Flex wrap="nowrap" w={'100%'} gap={10}>
       {backLink && (
@@ -24,7 +45,7 @@ export function PageTitle({ title, backLink, actions }: PageTitleProps) {
           variant="outline"
           aria-label="Back"
           size={50}
-          onClick={() => navigate(backLink, { replace: true })}
+          onClick={onBackClickHandler}
           color="var(--mantine-color-blue-3)"
         >
           <IconCircleArrowLeft stroke={1.5} />
@@ -50,14 +71,7 @@ export function PageTitle({ title, backLink, actions }: PageTitleProps) {
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
-            {actions.map((action, index) => (
-              <div key={`title_menu_item_${index}`}>
-                <Menu.Item onClick={action.onClick} leftSection={<action.icon size={30} />} my={10}>
-                  <Text size="lg">{action.text}</Text>
-                </Menu.Item>
-                {index + 1 < actions.length && <Menu.Divider />}
-              </div>
-            ))}
+            {actions.map((action, index) => renderAction(action, index, index + 1 == actions.length))}
           </Menu.Dropdown>
         </Menu>
       )}

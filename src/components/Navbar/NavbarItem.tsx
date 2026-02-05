@@ -14,6 +14,8 @@ export function NavbarItem({ icon: Icon, label, link }: NavbarItemProps) {
   // Services
   const navigate = useNavigate();
   const location = useLocation();
+
+  // States
   const [selected, setSelected] = useState(false);
 
   // Effects
@@ -21,21 +23,23 @@ export function NavbarItem({ icon: Icon, label, link }: NavbarItemProps) {
     setSelected(location.pathname.startsWith(link));
   }, [link, location.pathname]);
 
+  // Handlers
   const onClickHandler = () => {
     navigate(link, { replace: true });
   };
+
+  // Content
+  const className = `${classes.control} ${selected ? classes.active : ''}`;
   return (
-    <>
-      <UnstyledButton onClick={onClickHandler} className={`${classes.control} ${selected ? classes.active : ''}`}>
-        <Group justify="space-between" gap={0}>
-          <Box style={{ display: 'flex', alignItems: 'center' }}>
-            <ThemeIcon variant="filled" bd="1px solid var(--mantine-color-brand-4)" size={40}>
-              <Icon size={25} />
-            </ThemeIcon>
-            <Box ml="md">{label}</Box>
-          </Box>
-        </Group>
-      </UnstyledButton>
-    </>
+    <UnstyledButton onClick={onClickHandler} className={className}>
+      <Group justify="space-between" gap={0}>
+        <Box style={{ display: 'flex', alignItems: 'center' }}>
+          <ThemeIcon variant="filled" bd="1px solid" size={40}>
+            <Icon size={25} />
+          </ThemeIcon>
+          <Box ml="md">{label}</Box>
+        </Box>
+      </Group>
+    </UnstyledButton>
   );
 }

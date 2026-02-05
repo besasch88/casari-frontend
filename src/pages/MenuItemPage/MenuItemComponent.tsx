@@ -1,8 +1,9 @@
-import SwitchOnOff from '@components/SwitchOnOff/SwitchOnOff';
+import { MenuButton } from '@components/MenuButton/MenuButton';
+import { SwitchOnOff } from '@components/SwitchOnOff/SwitchOnOff';
 import { useAuth } from '@context/AuthContext';
 import { MenuItem } from '@entities/menuItem';
-import { ActionIcon, Button, Group, Menu } from '@mantine/core';
-import { IconArrowDown, IconArrowUp, IconDots, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { ActionIcon, Group, Menu } from '@mantine/core';
+import { IconArrowDown, IconArrowUp, IconBasket, IconDots, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,10 +16,10 @@ export interface MenuItemComponentProps {
   onMenuItemDown: (id: string) => void;
   onMenuItemUpdate: (id: string, title: string, price: number) => void;
   onMenuItemDelete: (id: string) => void;
-  onSwitch: (id: string, value: boolean) => void;
+  onSwitch: (menuItem: MenuItem, checked: boolean) => void;
 }
 
-export default function MenuItemComponent({
+export function MenuItemComponent({
   menuItem,
   canMoveUp,
   canMoveDown,
@@ -34,40 +35,31 @@ export default function MenuItemComponent({
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // Utilities
-  const canEdit = () => auth.hasPermissionTo('write-menu');
-  const getPrice = (i: MenuItem) => (i.price / 100).toFixed(2);
-
-  const onMenuAddOptionClick = () => {
+  // Handlers
+  const onClickHandler = (menuItem: MenuItem) => {
+    onClick(menuItem.id);
+  };
+  const onMenuAddOptionClickHandler = () => {
     navigate('/menu/items/' + menuItem.id);
   };
 
   // Content
+  const isReadOnly = !auth.hasPermissionTo('write-menu');
+  const price = (menuItem.price / 100).toFixed(2);
+  const isOnlyOutside = menuItem.outside && !menuItem.inside;
+  const btnText = menuItem.price > 0 ? `${menuItem.title} (${price}€)` : menuItem.title;
+
   return (
     <Group wrap="nowrap" gap={6}>
-      <Button
-        onClick={() => {
-          if (menuItem.price == 0) {
-            onClick(menuItem.id);
-          }
-        }}
-        fullWidth
-        px={15}
-        size="lg"
-        justify="left"
-        ta={'left'}
-        variant="default"
-        color="var(--aimm-bg-paper)"
-        bg={menuItem.price == 0 ? '#fff' : '#efefef'}
-        bd={'1px solid var(--mantine-color-dark-1)'}
-        c="var(--mantine-color-text)"
-        fz={15}
-        fw={300}
-      >
-        {menuItem.price > 0 ? `${menuItem.title} (${getPrice(menuItem)}€)` : menuItem.title}
-      </Button>
-      <SwitchOnOff canEdit={canEdit()} id={menuItem.id} checked={menuItem.active} onChange={onSwitch} />
-      {canEdit() && (
+      <MenuButton
+        reference={menuItem}
+        rightSection={isOnlyOutside && <IconBasket color="var(--mantine-color-brand-4)"></IconBasket>}
+        clickable={menuItem.price == 0}
+        text={btnText}
+        onClick={onClickHandler}
+      ></MenuButton>
+      <SwitchOnOff readOnly={isReadOnly} reference={menuItem} checked={menuItem.active} onChange={onSwitch} />
+      {!isReadOnly && (
         <Menu>
           <Menu.Target>
             <ActionIcon variant="outline">
@@ -88,7 +80,7 @@ export default function MenuItemComponent({
             <Menu.Item leftSection={<IconEdit size={14} />} onClick={() => onMenuItemUpdate(menuItem.id, '', 0)}>
               {t('menuEdit')}
             </Menu.Item>
-            <Menu.Item leftSection={<IconPlus size={14} />} onClick={onMenuAddOptionClick}>
+            <Menu.Item leftSection={<IconPlus size={14} />} onClick={onMenuAddOptionClickHandler}>
               {t('menuAddOption')}
             </Menu.Item>
             <Menu.Item leftSection={<IconTrash size={14} color="red" />} onClick={() => onMenuItemDelete(menuItem.id)}>

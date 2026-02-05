@@ -3,10 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import classes from './NotFoundPage.module.css';
 
-export default function NotFoundPage() {
+export function NotFoundPage() {
   // Services
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  // Handlers
+  const onClickHandler = () => {
+    navigate('/', { replace: true });
+  };
 
   // Content
   return (
@@ -18,7 +23,7 @@ export default function NotFoundPage() {
           {t('notFoundDescription')}
         </Text>
         <Group justify="center">
-          <Button variant="white" size="md" color="indigo" onClick={() => navigate('/', { replace: true })}>
+          <Button variant="white" size="md" color="indigo" onClick={onClickHandler}>
             {t('notFoundButton')}
           </Button>
         </Group>

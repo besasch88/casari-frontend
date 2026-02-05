@@ -230,5 +230,4 @@ function OrderComponentFunc(
   );
 }
 
-const OrderComponent = forwardRef(OrderComponentFunc);
-export default OrderComponent;
+export const OrderComponent = forwardRef(OrderComponentFunc);

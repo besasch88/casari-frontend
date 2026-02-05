@@ -3,10 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import classes from './InternalServerErrorPage.module.css';
 
-export default function InternalServerErrorPage() {
+export function InternalServerErrorPage() {
   // Services
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  // Handlers
+  const onClickHandler = () => {
+    navigate('/', { replace: true });
+  };
 
   // Content
   return (
@@ -18,7 +23,7 @@ export default function InternalServerErrorPage() {
           {t('internalServerErrorDescription')}
         </Text>
         <Group justify="center">
-          <Button variant="white" color="grape" size="md" onClick={() => navigate('/', { replace: true })}>
+          <Button variant="white" color="grape" size="md" onClick={onClickHandler}>
             {t('internalServerErrorButton')}
           </Button>
         </Group>

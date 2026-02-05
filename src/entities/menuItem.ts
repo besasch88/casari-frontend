@@ -6,6 +6,8 @@ export type MenuItem = {
   title: string;
   position: number;
   active: boolean;
+  inside: boolean;
+  outside: boolean;
   price: number;
   createdAt: string;
   updatedAt: string;

@@ -16,21 +16,21 @@ import '@mantine/notifications/styles.css';
 
 import { DirectionProvider, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
-import MenuCategoryPage from '@pages/MenuCategoryPage/MenuCategoryPage';
-import MenuItemPage from '@pages/MenuItemPage/MenuItemPage';
-import MenuOptionPage from '@pages/MenuOptionPage/MenuOptionPage';
-import OrderPage from '@pages/OrderPage/OrderPage';
-import StatisticsPage from '@pages/StatisticsPage/StatisticsPage';
-import TableListPage from '@pages/TableListPage/TableListPage';
-import TakeawayListPage from '@pages/TakeawayListPage/TakeawayListPage';
+import { MenuCategoryPage } from '@pages/MenuCategoryPage/MenuCategoryPage';
+import { MenuItemPage } from '@pages/MenuItemPage/MenuItemPage';
+import { MenuOptionPage } from '@pages/MenuOptionPage/MenuOptionPage';
+import { OrderPage } from '@pages/OrderPage/OrderPage';
+import { StatisticsPage } from '@pages/StatisticsPage/StatisticsPage';
+import { TableListPage } from '@pages/TableListPage/TableListPage';
+import { TakeawayListPage } from '@pages/TakeawayListPage/TakeawayListPage';
 import { cssVariablesResolver, mantineTheme } from '@styles/theme';
 import { ScrollToTop } from '@utils/ScrollToTop';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import InternalServerErrorPage from './pages/InternalServerErrorPage/InternalServerErrorPage';
-import LoginPage from './pages/LoginPage/LoginPage';
-import LogoutPage from './pages/LogoutPage/LogoutPage';
-import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
+import { InternalServerErrorPage } from './pages/InternalServerErrorPage/InternalServerErrorPage';
+import { LoginPage } from './pages/LoginPage/LoginPage';
+import { LogoutPage } from './pages/LogoutPage/LogoutPage';
+import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage';
 
 export function App() {
   return (

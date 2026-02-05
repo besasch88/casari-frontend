@@ -8,16 +8,19 @@ export interface HeaderProps {
 }
 
 export function Header({ onMenuToggle }: HeaderProps) {
+  // States
   const [isOpen, { toggle }] = useDisclosure(false);
 
-  const onBurgerClick = () => {
+  // Handlers
+  const onBurgerClickHandler = () => {
     onMenuToggle(!isOpen);
     toggle();
   };
 
+  // Content
   return (
     <Group justify="space-between" wrap="nowrap">
-      <Burger opened={isOpen} onClick={onBurgerClick} hiddenFrom="sm" />
+      <Burger opened={isOpen} onClick={onBurgerClickHandler} hiddenFrom="sm" />
       <Box className={classes.root}>
         <Group justify="center" h="100%" gap={10}>
           <HeaderLogo />

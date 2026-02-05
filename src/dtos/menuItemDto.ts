@@ -39,6 +39,8 @@ export type UpdateMenuItemInputDto = {
   id: string;
   title?: string;
   active?: boolean;
+  inside?: boolean;
+  outside?: boolean;
   position?: number;
   price?: number;
 };

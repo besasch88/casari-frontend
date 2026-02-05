@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-export default function StatisticsPage() {
+export function StatisticsPage() {
   // Services
   const navigate = useNavigate();
   const { t } = useTranslation();

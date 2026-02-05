@@ -1,5 +1,6 @@
 import { Layout } from '@components/Layout/Layout';
 import { useAuth } from '@context/AuthContext';
+import { Target } from '@dtos/targetDto';
 import { Table } from '@entities/table';
 import { AuthGuard } from '@guards/AuthGuard';
 import { Grid, Group, Loader, SegmentedControl } from '@mantine/core';
@@ -14,7 +15,7 @@ import { TableListNewModalComponent } from './TableListNewModalComponent';
 import { TableListOthersComponent } from './TableListOthersComponent';
 import { useModals } from './TableModals';
 
-export default function TableListPage() {
+export function TableListPage() {
   // Services
   const navigate = useNavigate();
   const auth = useAuth();
@@ -33,7 +34,7 @@ export default function TableListPage() {
   useEffect(() => {
     (async () => {
       try {
-        const tableData = await tableService.listTables({ target: 'inside', includeClosed: true });
+        const tableData = await tableService.listTables({ target: Target.inside, includeClosed: true });
         setTables(tableData.items);
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {

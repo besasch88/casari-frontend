@@ -14,32 +14,33 @@ import { getErrorMessage } from '@utils/errUtils';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import MenuItemComponent from './MenuItemComponent';
-import MenuItemEmptyStateComponent from './MenuItemEmptyStateComponent';
+import { MenuItemComponent } from './MenuItemComponent';
+import { MenuItemEmptyStateComponent } from './MenuItemEmptyStateComponent';
 
-export default function MenuItemPage() {
+export function MenuItemPage() {
+  // Params
   const { menuCategoryId } = useParams();
+
   // Services
   const navigate = useNavigate();
   const { t } = useTranslation();
   const auth = useAuth();
-
-  const canEdit = () => auth.hasPermissionTo('write-menu');
 
   // States
   const [pageLoaded, setPageLoaded] = useState(false);
   const [menuCategory, setMenuCategory] = useState<MenuCategory>();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
-  const onMenuItemClick = (id: string) => {
+  // Handlers
+  const onMenuItemClickHandler = (id: string) => {
     navigate(`/menu/items/${id}`, { replace: true });
   };
 
-  const onMenuItemSwitch = async (id: string, active: boolean) => {
+  const onMenuItemSwitchHandler = async (menuItem: MenuItem, checked: boolean) => {
     try {
       const menuItemData = await menuItemService.updateMenuItem({
-        id: id,
-        active: active,
+        id: menuItem.id,
+        active: checked,
       });
       setMenuItems((prev) => prev.map((item) => (item.id === menuItemData.item.id ? menuItemData.item : item)));
     } catch (err) {
@@ -74,6 +75,8 @@ export default function MenuItemPage() {
     })();
   }, [navigate, menuCategoryId]);
 
+  // Content
+  const readOnly = !auth.hasPermissionTo('write-menu');
   return (
     <AuthGuard>
       <Layout>
@@ -98,18 +101,18 @@ export default function MenuItemPage() {
                     menuItem={menuItem}
                     canMoveUp={index != 0}
                     canMoveDown={index != menuItems.length - 1}
-                    onClick={onMenuItemClick}
+                    onClick={onMenuItemClickHandler}
                     onMenuItemUp={alert}
                     onMenuItemDown={alert}
                     onMenuItemUpdate={alert}
                     onMenuItemDelete={alert}
-                    onSwitch={onMenuItemSwitch}
+                    onSwitch={onMenuItemSwitchHandler}
                   />
                 ))}
               </StackList>
               {menuItems.length == 0 && <MenuItemEmptyStateComponent />}
             </Grid.Col>
-            <Affix p={'md'} position={{ bottom: 0 }} hidden={!canEdit()}>
+            <Affix p={'md'} position={{ bottom: 0 }} hidden={readOnly}>
               <Button
                 size="lg"
                 fullWidth

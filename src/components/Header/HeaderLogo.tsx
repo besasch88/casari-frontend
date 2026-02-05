@@ -3,7 +3,10 @@ import { useTranslation } from 'react-i18next';
 import classes from './HeaderLogo.module.css';
 
 export function HeaderLogo() {
+  //Services
   const { t } = useTranslation();
+
+  // Content
   return (
     <Group gap={10} wrap="nowrap" style={{ cursor: 'pointer' }}>
       <Image src="/icon.svg" alt="Logo Icon" className={classes.logo} />

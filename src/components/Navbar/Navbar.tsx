@@ -14,13 +14,15 @@ import classes from './Navbar.module.css';
 import { NavbarItem, NavbarItemProps } from './NavbarItem';
 
 export function Navbar() {
+  // Services
   const auth = useAuth();
-
-  // Data
   const { t } = useTranslation();
+
+  // States
   const [menuItems, setMenuItems] = useState<NavbarItemProps[]>([]);
   const [footerMenuItems, setFooterMenuItems] = useState<NavbarItemProps[]>([]);
 
+  // Effects
   useEffect(() => {
     const items = [];
     if (auth.hasPermissionTo('read-my-tables') || auth.hasPermissionTo('read-other-tables')) {

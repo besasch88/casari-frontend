@@ -1,3 +1,4 @@
+import { Target } from '@dtos/targetDto';
 import { Button, Modal, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { tableService } from '@services/tableService';
@@ -51,7 +52,7 @@ export function TableListNewModalComponent({ isOpen, onClose }: TableListNewModa
         {
           pathname: data.item.id,
           search: createSearchParams({
-            target: 'inside',
+            target: Target.inside,
           }).toString(),
         },
         { replace: true }

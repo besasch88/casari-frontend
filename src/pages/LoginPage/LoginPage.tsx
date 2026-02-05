@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import classes from './LoginPage.module.css';
 import { LoginPageForm } from './LoginPageForm';
 
-export default function LoginPage() {
+export function LoginPage() {
   // Services
   const auth = useAuth();
   const navigate = useNavigate();

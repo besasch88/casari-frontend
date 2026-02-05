@@ -13,34 +13,49 @@ import { getErrorMessage } from '@utils/errUtils';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import MenuOptionComponent from './MenuOptionComponent';
-import MenuOptionEmptyStateComponent from './MenuOptionEmptyStateComponent';
+import { MenuOptionComponent } from './MenuOptionComponent';
+import { MenuOptionEmptyStateComponent } from './MenuOptionEmptyStateComponent';
 
-export default function MenuOptionPage() {
+export function MenuOptionPage() {
+  // Params
   const { menuItemId } = useParams();
+
   // Services
   const navigate = useNavigate();
   const { t } = useTranslation();
   const auth = useAuth();
 
-  const canEdit = () => auth.hasPermissionTo('write-menu');
+  const isReadOnly = !auth.hasPermissionTo('write-menu');
 
   // States
   const [pageLoaded, setPageLoaded] = useState(false);
   const [menuItem, setMenuItem] = useState<MenuItem>();
   const [menuOptions, setMenuOptions] = useState<MenuOption[]>([]);
 
-  const onMenuOptionItemSwitch = async (id: string, active: boolean) => {
+  // Handlers
+  const onMenuOptionSwitchHandler = async (menuOption: MenuOption, checked: boolean) => {
     try {
       const menuOptionData = await menuOptionService.updateMenuOption({
-        id: id,
-        active: active,
+        id: menuOption.id,
+        active: checked,
       });
       setMenuOptions((prev) => prev.map((item) => (item.id === menuOptionData.item.id ? menuOptionData.item : item)));
     } catch (err) {
       console.error(err);
     }
   };
+
+  /*const onMenuOptionItemMoveUp = async (menuOption: MenuOption) => {
+    try {
+      const menuOptionData = await menuOptionService.updateMenuOption({
+        id: menuOption.id,
+        position: menuOption.position + 1,
+      });
+      setMenuOptions((prev) => prev.map((item) => (item.id === menuOptionData.item.id ? menuOptionData.item : item)));
+    } catch (err) {
+      console.error(err);
+    }
+  };*/
 
   // Effects
   useEffect(() => {
@@ -69,6 +84,7 @@ export default function MenuOptionPage() {
     })();
   }, [navigate, menuItemId]);
 
+  // Content
   return (
     <AuthGuard>
       <Layout>
@@ -94,14 +110,13 @@ export default function MenuOptionPage() {
                     menuOption={menuOption}
                     canMoveUp={index != 0}
                     canMoveDown={index != menuOptions.length - 1}
-                    onClick={() => {}}
-                    onSwitch={onMenuOptionItemSwitch}
+                    onSwitch={onMenuOptionSwitchHandler}
                   />
                 ))}
               </StackList>
               {menuOptions.length == 0 && <MenuOptionEmptyStateComponent />}
             </Grid.Col>
-            <Affix p={'md'} position={{ bottom: 0 }} hidden={!canEdit()}>
+            <Affix p={'md'} position={{ bottom: 0 }} hidden={isReadOnly}>
               <Button
                 size="lg"
                 fullWidth

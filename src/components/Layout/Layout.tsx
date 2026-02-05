@@ -4,7 +4,10 @@ import { AppShell, AppShellHeader, AppShellMain, AppShellNavbar, Container, Grid
 import { useState } from 'react';
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  // States
   const [isOpen, setOpen] = useState(false);
+
+  // Content
   return (
     <AppShell
       header={{ height: 70 }}

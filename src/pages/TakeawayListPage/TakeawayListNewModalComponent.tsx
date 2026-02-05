@@ -1,3 +1,4 @@
+import { Target } from '@dtos/targetDto';
 import { Button, Modal, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { tableService } from '@services/tableService';
@@ -51,7 +52,7 @@ export function TakeawayListNewModalComponent({ isOpen, onClose }: TakeawayListN
         {
           pathname: `${data.item.id}`,
           search: createSearchParams({
-            target: 'outside',
+            target: Target.outside,
           }).toString(),
         },
         { replace: true }

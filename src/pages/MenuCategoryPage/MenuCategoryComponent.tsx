@@ -1,41 +1,37 @@
-import SwitchOnOff from '@components/SwitchOnOff/SwitchOnOff';
+import { MenuButton } from '@components/MenuButton/MenuButton';
+import { SwitchOnOff } from '@components/SwitchOnOff/SwitchOnOff';
 import { useAuth } from '@context/AuthContext';
 import { MenuCategory } from '@entities/menuCategory';
-import { Button, Group } from '@mantine/core';
+import { Group } from '@mantine/core';
 
 export interface MenuCategoryComponentProps {
   menuCategory: MenuCategory;
   onClick: (id: string) => void;
-  onSwitch: (id: string, active: boolean) => void;
+  onSwitch: (menuCategory: MenuCategory, checked: boolean) => void;
 }
 
-export default function MenuCategoryComponent({ menuCategory, onClick, onSwitch }: MenuCategoryComponentProps) {
+export function MenuCategoryComponent({ menuCategory, onClick, onSwitch }: MenuCategoryComponentProps) {
   // Services
   const auth = useAuth();
 
   // Utilities
-  const canEdit = () => auth.hasPermissionTo('write-menu');
+  const isReadOnly = !auth.hasPermissionTo('write-menu');
+
+  // Handlers
+  const onClickHandler = (menuCategory: MenuCategory) => {
+    onClick(menuCategory.id);
+  };
 
   // Content
   return (
     <Group wrap="nowrap">
-      <Button
-        onClick={() => onClick(menuCategory.id)}
-        fullWidth
-        px={15}
-        size="lg"
-        justify="left"
-        ta={'left'}
-        variant="default"
-        color="var(--aimm-bg-paper)"
-        bd={'1px solid var(--mantine-color-dark-1)'}
-        c="var(--mantine-color-text)"
-        fz={15}
-        fw={300}
-      >
-        {menuCategory.title}
-      </Button>
-      <SwitchOnOff canEdit={canEdit()} id={menuCategory.id} checked={menuCategory.active} onChange={onSwitch} />
+      <MenuButton
+        clickable={true}
+        reference={menuCategory}
+        text={menuCategory.title}
+        onClick={onClickHandler}
+      ></MenuButton>
+      <SwitchOnOff readOnly={isReadOnly} reference={menuCategory} checked={menuCategory.active} onChange={onSwitch} />
     </Group>
   );
 }

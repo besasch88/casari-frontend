@@ -7,7 +7,7 @@ export interface TakeawayListComponentProps {
   onClick: (id: string) => void;
 }
 
-export default function TakeawayListComponent({ takeaway, onClick }: TakeawayListComponentProps) {
+export function TakeawayListComponent({ takeaway, onClick }: TakeawayListComponentProps) {
   const progressIcon = () => <IconProgress size={22} color="orange" />;
   const completedIcon = () => <IconCircleCheck size={22} color="green" />;
 
