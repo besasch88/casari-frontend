@@ -1,6 +1,7 @@
 import { useAuth } from '@context/AuthContext';
 import { Box, Container, Image, Paper, Title } from '@mantine/core';
 import { authService } from '@services/authService';
+import { assets } from '@styles/assets';
 import { getErrorMessage } from '@utils/errUtils';
 import { useEffect, useState } from 'react';
 import { useRef } from 'react';
@@ -55,10 +56,18 @@ export function LoginPage() {
   }, [auth, t, navigate]);
 
   // Content
+  const Pattern = assets[`../assets/pattern.svg`];
   return (
     pageLoaded && (
       <Box className={classes.root}>
-        <Box className={classes.rootPattern}>
+        <Box
+          className={classes.rootPattern}
+          style={{
+            backgroundImage: `url(${Pattern})`,
+            backgroundRepeat: 'repeat',
+            backgroundPosition: '0 0',
+          }}
+        >
           <Container className={classes.boxLogin}>
             <Paper p={'xl'}>
               <Image src="/icon.svg" alt="Login Icon" className={classes.boxLogo} />

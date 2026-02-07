@@ -14,7 +14,8 @@ export const callApi = async (
     headers['Authorization'] = `Bearer ${accessToken}`;
   }
   // Get host fomr envs, or use default backend url
-  const host = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const host = (window as any).__ENV__?.VITE_BACKEND_URL ?? 'http://localhost:8001';
   let finalUrl = `${host}${url}`;
   let fetchBody: string | undefined;
 
