@@ -18,7 +18,7 @@ export const getOrderActions = (auth: AuthContextType, t: TFunction, table: Tabl
       {
         icon: IconRepeat,
         text: t('orderReopen'),
-        onClick: () => onClick('reopen'),
+        onActionClick: () => onClick('reopen'),
         visible: true,
       },
     ];
@@ -27,25 +27,25 @@ export const getOrderActions = (auth: AuthContextType, t: TFunction, table: Tabl
       {
         icon: IconListCheck,
         text: t('orderPrintOrder'),
-        onClick: () => onClick('print-order'),
+        onActionClick: () => onClick('print-order'),
         visible: true,
       },
       {
         icon: IconPageBreak,
         text: t('orderPrintCourse'),
-        onClick: () => onClick('print-course'),
+        onActionClick: () => onClick('print-course'),
         visible: table.inside,
       },
       {
         icon: IconCashRegister,
         text: t('orderPrintPreBill'),
-        onClick: () => onClick('print-bill'),
+        onActionClick: () => onClick('print-bill'),
         visible: true,
       },
       {
         icon: IconRosetteDiscountCheck,
         text: t('orderClose'),
-        onClick: () => onClick('close'),
+        onActionClick: () => onClick('close'),
         visible: true,
       },
     ];

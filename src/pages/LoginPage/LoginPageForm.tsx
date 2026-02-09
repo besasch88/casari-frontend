@@ -61,7 +61,7 @@ export function LoginPageForm() {
     <Box>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <TextInput
-          size="lg"
+          size="md"
           leftSection={<IconUser size={22} />}
           withAsterisk
           label={t('loginUsername')}
@@ -71,7 +71,7 @@ export function LoginPageForm() {
           mb="lg"
         />
         <PasswordInput
-          size="lg"
+          size="md"
           leftSection={<IconKey size={22} />}
           withAsterisk
           label={t('loginPassword')}

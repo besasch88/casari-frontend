@@ -1,21 +1,22 @@
 import { Icon } from '@components/Icon/Icon';
-import { ActionIcon, Flex, Menu, SegmentedControl, Text } from '@mantine/core';
+import { ActionIcon, Alert, AlertProps, Flex, Menu, SegmentedControl, Text } from '@mantine/core';
 import { IconCircleArrowLeft, IconDots } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 
 export interface PageTitleAction {
   icon: Icon;
   text: string;
-  onClick: () => void;
+  onActionClick: () => void;
 }
 
 export interface PageTitleProps {
   title: string;
   backLink?: string;
   actions?: PageTitleAction[];
+  alert?: AlertProps;
 }
 
-export function PageTitle({ title, backLink, actions }: PageTitleProps) {
+export function PageTitle({ title, backLink, actions, alert }: PageTitleProps) {
   // Services
   const navigate = useNavigate();
 
@@ -30,7 +31,7 @@ export function PageTitle({ title, backLink, actions }: PageTitleProps) {
   const renderAction = (action: PageTitleAction, index: number, isLast: boolean) => {
     return (
       <div key={`title_menu_item_${index}`}>
-        <Menu.Item onClick={action.onClick} leftSection={<action.icon size={30} />} my={10}>
+        <Menu.Item onClick={action.onActionClick} leftSection={<action.icon size={30} />} my={10}>
           <Text size="lg">{action.text}</Text>
         </Menu.Item>
         {!isLast && <Menu.Divider />}
@@ -71,6 +72,7 @@ export function PageTitle({ title, backLink, actions }: PageTitleProps) {
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
+            {alert && <Alert {...alert}></Alert>}
             {actions.map((action, index) => renderAction(action, index, index + 1 == actions.length))}
           </Menu.Dropdown>
         </Menu>

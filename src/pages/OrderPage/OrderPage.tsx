@@ -221,6 +221,10 @@ export function OrderPage() {
     return a;
   };
 
+  const hasAtLeastOneCover = (o: Order): boolean => {
+    return o.courses.some((c) => c.items.some((i) => i.menuItemId === '37023186-295f-4736-94a2-b0cb19dad8b2'));
+  };
+
   const canEdit = () => {
     if (!table || table.close) {
       return false;
@@ -365,6 +369,15 @@ export function OrderPage() {
                   actions={getOrderActions(auth, t, table, (code: string) => {
                     onMenuActionClick(code);
                   })}
+                  alert={
+                    !hasAtLeastOneCover(order)
+                      ? {
+                          color: 'orange',
+                          ta: 'center',
+                          children: <Text size="lg">{t('rememberAlert')}</Text>,
+                        }
+                      : undefined
+                  }
                 />
               </Flex>
             </Grid.Col>

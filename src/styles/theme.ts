@@ -18,8 +18,8 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     red: ['#FFDCE1', '#FFB3B7', '#FF8990', '#FF6068', '#FF3641', '#FF0C1A', '#E6001B', '#CC001C', '#BA0024', '#9A001F'],
   },
   other: {
-    darkBackground: '#0d3457ff',
-    lightBackground: '#0d3457ff',
+    darkBackground: 'rgb(16, 91, 157)',
+    lightBackground: 'rgb(16, 91, 157)',
     bpPaperDark: '#dee2e6',
     bpPaperLight: '#dee2e6',
   },

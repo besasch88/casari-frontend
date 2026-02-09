@@ -91,4 +91,5 @@ export const itTranslations = {
   takeawayAddNew: 'CREA ASPORTO',
   takeawayMyTakeawayMenu: 'I MIEI ASPORTO',
   takeawayOtherTakeawayMenu: 'ALTRI ASPORTO',
+  rememberAlert: 'COPERTI NON SEGNATI',
 };
