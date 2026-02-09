@@ -38,7 +38,6 @@ export function TakeawayListPage() {
         const takeawayData = await tableService.listTables({ target: Target.outside, includeClosed: true });
         setTakeaways(takeawayData.items);
         if (takeawayData.items.length > 0) {
-          console.log(+takeawayData.items[0].name.split('ASPORTO ')[1]);
           setLastTakeawayNumber(+takeawayData.items[0].name.split('ASPORTO ')[1]);
         }
       } catch (err: unknown) {
