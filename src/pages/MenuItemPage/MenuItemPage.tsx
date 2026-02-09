@@ -112,13 +112,17 @@ export function MenuItemPage() {
               </StackList>
               {menuItems.length == 0 && <MenuItemEmptyStateComponent />}
             </Grid.Col>
-            <Affix p={'md'} position={{ bottom: 0 }} hidden={readOnly}>
-              <Button
-                size="lg"
-                fullWidth
-                onClick={() => alert('DA IMPLEMENTARE')}
-                leftSection={<IconCirclePlus size={28} />}
-              >
+            <Affix
+              p={'md'}
+              position={{ bottom: 0 }}
+              hidden={readOnly}
+              ta={'center'}
+              style={{
+                borderTop: '1px solid var(--aimm-bg-paper)',
+                background: 'white',
+              }}
+            >
+              <Button size="lg" onClick={() => alert('DA IMPLEMENTARE')} leftSection={<IconCirclePlus size={28} />}>
                 {t('menuAddItem')}
               </Button>
             </Affix>

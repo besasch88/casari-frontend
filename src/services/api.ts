@@ -13,9 +13,15 @@ export const callApi = async (
   if (accessToken) {
     headers['Authorization'] = `Bearer ${accessToken}`;
   }
-  // Get host fomr envs, or use default backend url
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const host = (window as any).__ENV__?.VITE_BACKEND_URL ?? 'http://localhost:8001';
+  // Get host fomr envs for dev. If not defined, check ENVs stored in html
+  // to make them dynamic in production given the static files via NGINX
+  let host = 'http://localhost:8001';
+  if (import.meta.env.VITE_BACKEND_URL) {
+    host = import.meta.env.VITE_BACKEND_URL;
+  }
+  if (window.__ENV__?.VITE_BACKEND_URL && window.__ENV__?.VITE_BACKEND_URL !== '${VITE_BACKEND_URL}') {
+    host = window.__ENV__?.VITE_BACKEND_URL;
+  }
   let finalUrl = `${host}${url}`;
   let fetchBody: string | undefined;
 

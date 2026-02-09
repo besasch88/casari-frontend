@@ -10,3 +10,11 @@ declare global {
     readonly glob: (pattern: string, options?: { eager?: boolean; import?: string }) => Record<string, unknown>;
   }
 }
+
+declare global {
+  interface Window {
+    __ENV__?: {
+      VITE_BACKEND_URL?: string;
+    };
+  }
+}
