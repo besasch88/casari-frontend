@@ -45,7 +45,7 @@ export function ModalReopenTable({ table, onClick }: ModalReopenTableProps) {
   return (
     <Box>
       <Center p={30}>
-        <Text fz={18} fs={'italic'} ta={'center'}>
+        <Text fz={18} ta={'center'}>
           {t('reopenConfirm')}
         </Text>
       </Center>

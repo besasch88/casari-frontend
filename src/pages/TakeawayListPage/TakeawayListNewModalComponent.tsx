@@ -27,7 +27,6 @@ export function TakeawayListNewModalComponent({
   const [apiLoading, setApiLoading] = useState(false);
 
   // Form
-  console.log('set form', lastTakeawayNumber + 1);
   const form = useForm({
     initialValues: {
       name: lastTakeawayNumber + 1,

@@ -152,7 +152,7 @@ export function ModalPrintBill({ table, menu, order, onPrintDone }: ModalPrintBi
       )}
       {getNumberOfElements() == 0 && (
         <Center p={30}>
-          <Text fz={18} fs={'italic'} ta={'center'}>
+          <Text fz={18} ta={'center'}>
             {t('noItemsToPrint')}
           </Text>
         </Center>

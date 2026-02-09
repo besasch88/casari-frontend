@@ -160,7 +160,7 @@ export function ModalPrintOrder({ table, menu, order, course, onPrintDone }: Mod
       })}
       {getNumberOfElements() == 0 && (
         <Center p={30}>
-          <Text fz={18} fs={'italic'} ta={'center'}>
+          <Text fz={18} ta={'center'}>
             {t('noItemsToPrint')}
           </Text>
         </Center>
