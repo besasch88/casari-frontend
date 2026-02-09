@@ -22,6 +22,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import { ModalCloseAndSendTable } from './ModalCloseAndSendTable';
 import { ModalCloseTable } from './ModalCloseTable';
 import { ModalPrintBill } from './ModalPrintBill';
 import { ModalPrintOrder } from './ModalPrintOrder';
@@ -165,6 +166,9 @@ export function OrderPage() {
         break;
       case 'close':
         modals.closeTable.open();
+        break;
+      case 'close-send':
+        modals.closeAndSendTable.open();
         break;
     }
   };
@@ -370,11 +374,15 @@ export function OrderPage() {
                     onMenuActionClick(code);
                   })}
                   alert={
-                    !hasAtLeastOneCover(order)
+                    table.inside && !hasAtLeastOneCover(order)
                       ? {
                           color: 'orange',
                           ta: 'center',
-                          children: <Text size="lg">{t('rememberAlert')}</Text>,
+                          children: (
+                            <Text fw={600} size="lg">
+                              {t('rememberAlert')}
+                            </Text>
+                          ),
                         }
                       : undefined
                   }
@@ -469,6 +477,21 @@ export function OrderPage() {
                 onClick={(t) => {
                   setTable(t);
                   modals.closeTable.close();
+                }}
+              />
+            </Modal>
+            <Modal
+              centered
+              withCloseButton
+              opened={modals.closeAndSendTable.isOpen}
+              onClose={modals.closeAndSendTable.close}
+              title={`${t('tableTable').toUpperCase()} ${table.name}`}
+            >
+              <ModalCloseAndSendTable
+                table={table}
+                onClick={(t) => {
+                  setTable(t);
+                  modals.closeAndSendTable.close();
                 }}
               />
             </Modal>

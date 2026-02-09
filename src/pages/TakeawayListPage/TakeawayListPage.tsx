@@ -28,6 +28,7 @@ export function TakeawayListPage() {
   const modals = useModals();
   const [pageLoaded, setPageLoaded] = useState(false);
   const [takeaways, setTakeaways] = useState<Table[]>([]);
+  const [lastTakeawayNumber, setLastTakeawayNumber] = useState<number>(0);
   const [selectedSection, setSelectedSection] = useState(sections.MY_TABLES);
 
   // Effects
@@ -36,6 +37,10 @@ export function TakeawayListPage() {
       try {
         const takeawayData = await tableService.listTables({ target: Target.outside, includeClosed: true });
         setTakeaways(takeawayData.items);
+        if (takeawayData.items.length > 0) {
+          console.log(+takeawayData.items[0].name.split('ASPORTO ')[1]);
+          setLastTakeawayNumber(+takeawayData.items[0].name.split('ASPORTO ')[1]);
+        }
       } catch (err: unknown) {
         switch (getErrorMessage(err)) {
           case 'forbidden':
@@ -106,7 +111,13 @@ export function TakeawayListPage() {
           </>
         )}
       </Layout>
-      <TakeawayListNewModalComponent isOpen={modals.newTakeaway.isOpen} onClose={modals.newTakeaway.close} />
+      {modals.newTakeaway.isOpen && (
+        <TakeawayListNewModalComponent
+          isOpen={modals.newTakeaway.isOpen}
+          onClose={modals.newTakeaway.close}
+          lastTakeawayNumber={lastTakeawayNumber}
+        />
+      )}
     </AuthGuard>
   );
 }

@@ -28,5 +28,6 @@ export function useModals() {
     printOrder: usePrintOrder(),
     printCourse: usePrintCourse(),
     printBill: usePrintBill(),
+    closeAndSendTable: useCloseTable(),
   };
 }

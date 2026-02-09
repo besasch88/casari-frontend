@@ -3,7 +3,16 @@ import { SwitchOnOff } from '@components/SwitchOnOff/SwitchOnOff';
 import { useAuth } from '@context/AuthContext';
 import { MenuItem } from '@entities/menuItem';
 import { ActionIcon, Group, Menu } from '@mantine/core';
-import { IconArrowDown, IconArrowUp, IconBasket, IconDots, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconDoorExit,
+  IconDots,
+  IconEdit,
+  IconLayout2,
+  IconPlus,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
@@ -47,13 +56,21 @@ export function MenuItemComponent({
   const isReadOnly = !auth.hasPermissionTo('write-menu');
   const price = (menuItem.price / 100).toFixed(2);
   const isOnlyOutside = menuItem.outside && !menuItem.inside;
+  const isOnlyInside = !menuItem.outside && menuItem.inside;
   const btnText = menuItem.price > 0 ? `${menuItem.title} (${price}€)` : menuItem.title;
+
+  let menuButtonIcon;
+  if (isOnlyOutside) {
+    menuButtonIcon = <IconDoorExit color="var(--mantine-color-blue-4)"></IconDoorExit>;
+  } else if (isOnlyInside) {
+    menuButtonIcon = <IconLayout2 color="var(--mantine-color-blue-4)"></IconLayout2>;
+  }
 
   return (
     <Group wrap="nowrap" gap={6}>
       <MenuButton
         reference={menuItem}
-        rightSection={isOnlyOutside && <IconBasket color="var(--mantine-color-brand-4)"></IconBasket>}
+        rightSection={menuButtonIcon}
         clickable={menuItem.price == 0}
         text={btnText}
         onClick={onClickHandler}

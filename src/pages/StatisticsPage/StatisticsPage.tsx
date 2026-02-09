@@ -158,7 +158,6 @@ export function StatisticsPage() {
                       {menuItem.quantity} x {menuItem.title}
                     </Text>
                   }
-                  fw={500}
                 ></Button>
               ))}
             </Grid.Col>

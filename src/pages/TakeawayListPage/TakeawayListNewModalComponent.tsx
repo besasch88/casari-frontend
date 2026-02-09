@@ -1,19 +1,24 @@
 import { Target } from '@dtos/targetDto';
-import { Button, Modal, TextInput } from '@mantine/core';
+import { Button, Group, Modal, NumberInput, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { tableService } from '@services/tableService';
-import { IconCirclePlus, IconLayout2 } from '@tabler/icons-react';
+import { IconCirclePlus } from '@tabler/icons-react';
 import { getErrorMessage } from '@utils/errUtils';
-import { ChangeEvent, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 
 export interface TakeawayListNewModalComponentProps {
   isOpen: boolean;
   onClose: () => void;
+  lastTakeawayNumber: number;
 }
 
-export function TakeawayListNewModalComponent({ isOpen, onClose }: TakeawayListNewModalComponentProps) {
+export function TakeawayListNewModalComponent({
+  isOpen,
+  onClose,
+  lastTakeawayNumber,
+}: TakeawayListNewModalComponentProps) {
   // Services
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -22,17 +27,18 @@ export function TakeawayListNewModalComponent({ isOpen, onClose }: TakeawayListN
   const [apiLoading, setApiLoading] = useState(false);
 
   // Form
+  console.log('set form', lastTakeawayNumber + 1);
   const form = useForm({
     initialValues: {
-      name: 'ASPORTO ',
+      name: lastTakeawayNumber + 1,
     },
     validate: {
-      name: (value: string) => (value.trim().length != 0 ? null : t('fieldIsRequired')),
+      name: (value: number) => (value > 0 ? null : t('fieldIsRequired')),
     },
   });
 
-  const onInputFormChange = (event: ChangeEvent<HTMLInputElement>) => {
-    form.setFieldValue('name', event.currentTarget.value.toUpperCase());
+  const onInputFormChange = (newValue: string | number) => {
+    form.setFieldValue('name', parseInt(newValue.toString()));
   };
 
   const onModalClose = () => {
@@ -46,7 +52,7 @@ export function TakeawayListNewModalComponent({ isOpen, onClose }: TakeawayListN
       setApiLoading(true);
       const data = await tableService.createTable({
         inside: false,
-        name: values.name,
+        name: `ASPORTO ${values.name}`,
       });
       navigate(
         {
@@ -59,7 +65,7 @@ export function TakeawayListNewModalComponent({ isOpen, onClose }: TakeawayListN
       );
     } catch (err: unknown) {
       switch (getErrorMessage(err)) {
-        case 'takeaway-same-name-already-exists':
+        case 'table-same-name-already-exists':
           form.setFieldError('name', t('takeawayNameAlreadyInUse'));
           break;
         case 'refresh-token-failed':
@@ -77,19 +83,25 @@ export function TakeawayListNewModalComponent({ isOpen, onClose }: TakeawayListN
   return (
     <Modal centered withCloseButton title={t('takeawayAddNew')} opened={isOpen} onClose={onModalClose}>
       <form onSubmit={form.onSubmit(handleCreateTakeawaySubmit)}>
-        <TextInput
-          size="lg"
-          autoFocus
-          withAsterisk
-          disabled={apiLoading}
-          leftSection={<IconLayout2 size={22} />}
-          placeholder={t('takeawayInsertTypeName')}
-          key={form.key('name')}
-          {...form.getInputProps('name')}
-          onChange={onInputFormChange}
-          mt={'md'}
-          mb="lg"
-        />
+        <Group wrap="nowrap">
+          <Text size="lg" mt={'md'} mb="lg" w={200}>
+            ASPORTO N.RO:
+          </Text>
+          <NumberInput
+            size="lg"
+            autoFocus
+            withAsterisk
+            disabled={apiLoading}
+            placeholder={t('takeawayInsertTypeName')}
+            key={form.key('name')}
+            {...form.getInputProps('name')}
+            onChange={onInputFormChange}
+            allowDecimal={false}
+            min={1}
+            mt={'md'}
+            mb="lg"
+          />
+        </Group>
         <Button
           type="submit"
           size="lg"

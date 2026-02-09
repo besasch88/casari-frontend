@@ -11,11 +11,11 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import classes from './ModalClose.module.css';
 
-export interface ModalCloseTableProps {
+export interface ModalCloseAndSendTableProps {
   table: Table;
   onClick: (table: Table) => void;
 }
-export function ModalCloseTable({ table, onClick }: ModalCloseTableProps) {
+export function ModalCloseAndSendTable({ table, onClick }: ModalCloseAndSendTableProps) {
   // Services
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -38,6 +38,7 @@ export function ModalCloseTable({ table, onClick }: ModalCloseTableProps) {
         paymentMethod: values.paymentMethod,
         close: true,
       });
+      await orderService.printOrder({ id: table.id, target: 'order' });
       await orderService.printOrder({ id: table.id, target: 'payment' });
       onClick(tableData.item);
     } catch (err: unknown) {

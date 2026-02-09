@@ -140,7 +140,7 @@ export function ModalPrintOrder({ table, menu, order, course, onPrintDone }: Mod
     if (c.items.length == 0) return <div key={`empty_course_${c.id}`}></div>;
     return (
       <Box key={`course_${c.id}`} mt={10} mb={40}>
-        <Text fw={700} size="xl">
+        <Text fw={600} size="xl">
           {t('course')} {index}
         </Text>
         <Divider mb={15} />

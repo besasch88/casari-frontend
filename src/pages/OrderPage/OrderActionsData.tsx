@@ -23,31 +23,48 @@ export const getOrderActions = (auth: AuthContextType, t: TFunction, table: Tabl
       },
     ];
   } else {
-    return [
-      {
-        icon: IconListCheck,
-        text: t('orderPrintOrder'),
-        onActionClick: () => onClick('print-order'),
-        visible: true,
-      },
-      {
-        icon: IconPageBreak,
-        text: t('orderPrintCourse'),
-        onActionClick: () => onClick('print-course'),
-        visible: table.inside,
-      },
-      {
-        icon: IconCashRegister,
-        text: t('orderPrintPreBill'),
-        onActionClick: () => onClick('print-bill'),
-        visible: true,
-      },
-      {
-        icon: IconRosetteDiscountCheck,
-        text: t('orderClose'),
-        onActionClick: () => onClick('close'),
-        visible: true,
-      },
-    ];
+    if (table.inside) {
+      return [
+        {
+          icon: IconListCheck,
+          text: t('orderPrintOrder'),
+          onActionClick: () => onClick('print-order'),
+          visible: true,
+        },
+        {
+          icon: IconPageBreak,
+          text: t('orderPrintCourse'),
+          onActionClick: () => onClick('print-course'),
+          visible: table.inside,
+        },
+        {
+          icon: IconCashRegister,
+          text: t('orderPrintPreBill'),
+          onActionClick: () => onClick('print-bill'),
+          visible: true,
+        },
+        {
+          icon: IconRosetteDiscountCheck,
+          text: t('orderClose'),
+          onActionClick: () => onClick('close'),
+          visible: true,
+        },
+      ];
+    } else {
+      return [
+        {
+          icon: IconCashRegister,
+          text: t('orderPrintPreBill'),
+          onActionClick: () => onClick('print-bill'),
+          visible: true,
+        },
+        {
+          icon: IconRosetteDiscountCheck,
+          text: t('orderCloseAndSend'),
+          onActionClick: () => onClick('close-send'),
+          visible: true,
+        },
+      ];
+    }
   }
 };
